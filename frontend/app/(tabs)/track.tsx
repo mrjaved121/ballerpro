@@ -1,293 +1,262 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
+  TextInput,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
 } from 'react-native';
-import { ProgressRing } from '../../src/components/ui/ProgressRing';
-import { MacroCard } from '../../src/components/ui/MacroCard';
-import { MealItem } from '../../src/components/ui/MealItem';
-import { Meal, DailyTarget } from '../../src/types/nutrition';
-import { colors } from '../../src/theme/colors';
-import { spacing } from '../../src/theme/spacing';
-import { typography } from '../../src/theme/typography';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { COLORS, FONTS, SPACING } from '../../src/constants/theme';
+import { MoodChip, MoodType } from '../../src/components/ui/MoodChip';
+import { StatusBar } from 'expo-status-bar';
 
-const INITIAL_TARGETS: DailyTarget = {
-  calories: 2000,
-  macros: {
-    protein: 150,
-    carbs: 250,
-    fats: 70,
-  },
-};
-
-const INITIAL_MEALS: Meal[] = [
-  {
-    id: '1',
-    name: 'Breakfast',
-    description: 'Scrambled Eggs, Toast',
-    calories: 520,
-    macros: { protein: 30, carbs: 40, fats: 25 },
-    icon: 'wb_sunny',
-    timestamp: Date.now() - 100000,
-  },
-  {
-    id: '2',
-    name: 'Lunch',
-    description: 'Chicken Salad',
-    calories: 480,
-    macros: { protein: 45, carbs: 15, fats: 20 },
-    icon: 'lunch_dining',
-    timestamp: Date.now() - 50000,
-  },
-  {
-    id: '3',
-    name: 'Dinner',
-    description: 'Salmon and Veggies',
-    calories: 300,
-    macros: { protein: 25, carbs: 20, fats: 15 },
-    icon: 'dinner_dining',
-    timestamp: Date.now(),
-  },
+const MOODS: { type: MoodType; icon: keyof typeof MaterialIcons.glyphMap }[] = [
+  { type: 'Great', icon: 'sentiment-very-satisfied' },
+  { type: 'Good', icon: 'sentiment-satisfied' },
+  { type: 'Meh', icon: 'sentiment-neutral' },
+  { type: 'Tired', icon: 'battery-alert' },
+  { type: 'Stressed', icon: 'mood-bad' }
 ];
 
 export default function TrackScreen() {
-  const [meals, setMeals] = useState<Meal[]>(INITIAL_MEALS);
-
-  // Computed totals
-  const totals = useMemo(() => {
-    return meals.reduce(
-      (acc, meal) => ({
-        calories: acc.calories + meal.calories,
-        protein: acc.protein + meal.macros.protein,
-        carbs: acc.carbs + meal.macros.carbs,
-        fats: acc.fats + meal.macros.fats,
-      }),
-      { calories: 0, protein: 0, carbs: 0, fats: 0 }
-    );
-  }, [meals]);
-
-  const caloriesProgress = Math.min(
-    100,
-    (totals.calories / INITIAL_TARGETS.calories) * 100
-  );
-
-  const handleAddMeal = () => {
-    // TODO: Open add meal modal
-    console.log('Add meal pressed');
-  };
-
+  const [selectedMood, setSelectedMood] = useState<MoodType>('Great');
+  const [entryText, setEntryText] = useState('');
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Nutrition</Text>
-      </View>
-
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Main Progress Ring */}
-        <ProgressRing
-          radius={140}
-          stroke={16}
-          progress={caloriesProgress}
-          target={INITIAL_TARGETS.calories}
-          consumed={totals.calories}
-        />
-
-        {/* Macro Cards Grid */}
-        <View style={styles.macrosContainer}>
-          <MacroCard
-            label="Protein"
-            current={totals.protein}
-            total={INITIAL_TARGETS.macros.protein}
-          />
-          <MacroCard
-            label="Carbs"
-            current={totals.carbs}
-            total={INITIAL_TARGETS.macros.carbs}
-          />
-          <MacroCard
-            label="Fats"
-            current={totals.fats}
-            total={INITIAL_TARGETS.macros.fats}
-          />
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar style="light" />
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.iconButton}>
+            <MaterialIcons name="arrow-back-ios" size={24} color={COLORS.white} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Journal</Text>
+          <TouchableOpacity style={styles.calendarButton}>
+            <MaterialIcons name="calendar-today" size={24} color={COLORS.white} />
+          </TouchableOpacity>
         </View>
-
-        {/* Meals List Section */}
-        <View style={styles.mealsSection}>
-          <View style={styles.mealsHeader}>
-            <Text style={styles.mealsTitle}>Today's Meals</Text>
-            <TouchableOpacity
-              style={styles.addMealButton}
-              onPress={handleAddMeal}
-              activeOpacity={0.7}
+        <View style={styles.dateNav}>
+          <TouchableOpacity style={styles.navButton}>
+            <MaterialIcons name="chevron-left" size={28} color="rgba(255,255,255,0.7)" />
+          </TouchableOpacity>
+          <Text style={styles.dateText}>Today, Oct 26</Text>
+          <TouchableOpacity style={styles.navButton}>
+            <MaterialIcons name="chevron-right" size={28} color="rgba(255,255,255,0.7)" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.divider} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.sectionTitle}>How are you feeling today?</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.moodScroll}
             >
-              <Text style={styles.addMealText}>Add Meal</Text>
-              <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+              {MOODS.map((mood) => (
+                <MoodChip
+                  key={mood.type}
+                  mood={mood.type}
+                  icon={mood.icon}
+                  isSelected={selectedMood === mood.type}
+                  onSelect={setSelectedMood}
+                />
+              ))}
+            </ScrollView>
+            <View style={styles.composerContainer}>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="What's on your mind? How was your workout?"
+                  placeholderTextColor={COLORS.textTertiary}
+                  multiline
+                  textAlignVertical="top"
+                  value={entryText}
+                  onChangeText={setEntryText}
+                  maxLength={1000}
+                />
+                <View style={styles.toolbar}>
+                  <View style={styles.toolbarActions}>
+                    <TouchableOpacity style={styles.toolButton}>
+                      <MaterialIcons name="image" size={22} color={COLORS.textSecondary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.toolButton}>
+                      <MaterialIcons name="bar-chart" size={22} color={COLORS.textSecondary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.toolButton}>
+                      <MaterialIcons name="location-on" size={22} color={COLORS.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.charCount}>{entryText.length}/1000</Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.saveButton} activeOpacity={0.8}>
+              <Text style={styles.saveButtonText}>Save Journal Entry</Text>
             </TouchableOpacity>
           </View>
-
-          <View style={styles.mealsList}>
-            {meals.length > 0 ? (
-              meals.map((meal) => <MealItem key={meal.id} meal={meal} />)
-            ) : (
-              <View style={styles.emptyState}>
-                <Ionicons
-                  name="restaurant-outline"
-                  size={48}
-                  color={colors.textSecondary}
-                />
-                <Text style={styles.emptyText}>No meals tracked today</Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* Bottom Action Bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity
-          style={styles.scanButton}
-          onPress={handleAddMeal}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="barcode-outline" size={24} color={colors.accent} />
-          <Text style={styles.scanButtonText}>Scan Barcode</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={handleAddMeal}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={32} color={colors.text} />
-        </TouchableOpacity>
+        </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.backgroundDark,
+  },
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: COLORS.backgroundDark,
   },
   header: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    backgroundColor: COLORS.backgroundDark,
+  },
+  iconButton: {
+    width: 48,
+    height: 48,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  calendarButton: {
+    width: 48,
+    height: 48,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    letterSpacing: -0.5,
-  },
-  scrollView: {
     flex: 1,
+    textAlign: 'center',
+    color: COLORS.white,
+    fontSize: 18,
+    fontFamily: FONTS.bold,
+  },
+  dateNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+  },
+  navButton: {
+    padding: SPACING.xs,
+    borderRadius: 20,
+  },
+  dateText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontFamily: FONTS.medium,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.xs,
   },
   scrollContent: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.xxl * 2,
+    flexGrow: 1,
   },
-  macrosContainer: {
-    flexDirection: 'row',
-    gap: spacing.md,
-    marginBottom: spacing.lg,
+  sectionTitle: {
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 18,
+    fontFamily: FONTS.bold,
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.sm,
   },
-  mealsSection: {
-    marginTop: spacing.md,
+  moodScroll: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    paddingBottom: SPACING.md,
   },
-  mealsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-    paddingHorizontal: spacing.xs,
-  },
-  mealsTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    letterSpacing: -0.5,
-  },
-  addMealButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  addMealText: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.primary,
-  },
-  mealsList: {
-    gap: spacing.md,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xxl,
-    backgroundColor: colors.inputBg,
-    borderRadius: spacing.lg,
-    opacity: 0.5,
-  },
-  emptyText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
-  },
-  bottomBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
-    backgroundColor: colors.background,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-  },
-  scanButton: {
+  composerContainer: {
     flex: 1,
+    paddingHorizontal: SPACING.md,
+    paddingBottom: SPACING.md,
+    minHeight: 300,
+  },
+  inputWrapper: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderColor: COLORS.border,
+    borderWidth: 1,
+    borderRadius: 16,
+    overflow: 'hidden',
+    flexDirection: 'column',
+  },
+  textInput: {
+    flex: 1,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontFamily: FONTS.regular,
+    fontSize: 16,
+    padding: SPACING.md,
+    lineHeight: 24,
+    textAlignVertical: 'top',
+  },
+  toolbar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.inputBg,
-    borderRadius: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
-  scanButtonText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text,
+  toolbarActions: {
+    flexDirection: 'row',
+    gap: SPACING.xs,
   },
-  fab: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.primary,
+  toolButton: {
+    padding: SPACING.sm,
+  },
+  charCount: {
+    color: COLORS.textTertiary,
+    fontSize: 12,
+    fontFamily: FONTS.regular,
+    marginRight: SPACING.sm,
+  },
+  footer: {
+    padding: SPACING.md,
+    backgroundColor: COLORS.backgroundDark,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  saveButton: {
+    backgroundColor: COLORS.primary,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    width: '100%',
+  },
+  saveButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontFamily: FONTS.bold,
+    letterSpacing: 0.5,
   },
 });
+
+// This screen is now ready for journal/track tab usage.
 
