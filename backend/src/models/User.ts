@@ -3,12 +3,18 @@ import { comparePassword as bcryptCompare } from '../utils/password';
 
 export interface OnboardingData {
   step1?: {
-    goal: 'build-muscle' | 'lose-fat' | 'improve-endurance' | 'increase-strength';
-    trainingLevel: 'strength-athlete' | 'endurance-runner' | 'casual-gym-goer' | 'beginner';
+    gender?: 'male' | 'female' | 'other';
   };
-  step2?: Record<string, any>;
-  step3?: Record<string, any>;
-  step4?: Record<string, any>;
+  step2?: {
+    experienceLevel?: 'beginner' | 'intermediate' | 'advanced';
+  };
+  step3?: {
+    injuries?: string[];
+    otherDetails?: string;
+  };
+  step4?: {
+    goal?: 'muscle-gain' | 'fat-loss' | 'maintenance';
+  };
   completed: boolean;
   completedAt?: Date;
 }
@@ -54,23 +60,32 @@ const UserSchema = new Schema<IUser>(
     },
       onboarding: {
         step1: {
-          goal: {
+          gender: {
             type: String,
-            enum: ['build-muscle', 'lose-fat', 'improve-endurance', 'increase-strength'],
-          },
-          trainingLevel: {
-            type: String,
-            enum: ['strength-athlete', 'endurance-runner', 'casual-gym-goer', 'beginner'],
+            enum: ['male', 'female', 'other'],
           },
         },
         step2: {
-          type: Schema.Types.Mixed,
+          experienceLevel: {
+            type: String,
+            enum: ['beginner', 'intermediate', 'advanced'],
+          },
         },
         step3: {
-          type: Schema.Types.Mixed,
+          injuries: {
+            type: [String],
+            default: [],
+          },
+          otherDetails: {
+            type: String,
+            trim: true,
+          },
         },
         step4: {
-          type: Schema.Types.Mixed,
+          goal: {
+            type: String,
+            enum: ['muscle-gain', 'fat-loss', 'maintenance'],
+          },
         },
         completed: {
           type: Boolean,
@@ -97,3 +112,4 @@ UserSchema.methods.comparePassword = async function (
 UserSchema.index({ email: 1 });
 
 export const User = mongoose.model<IUser>('User', UserSchema);
+

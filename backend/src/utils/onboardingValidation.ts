@@ -1,27 +1,29 @@
 import { z } from 'zod';
 
-// Step 1 validation
+// Step 1 validation - Gender Selection
 export const step1Schema = z.object({
-  goal: z.enum(['build-muscle', 'lose-fat', 'improve-endurance', 'increase-strength'], {
-    required_error: 'Please select a goal',
-  }),
-  trainingLevel: z.enum(['strength-athlete', 'endurance-runner', 'casual-gym-goer', 'beginner'], {
-    required_error: 'Please select a training level',
+  gender: z.enum(['male', 'female', 'other'], {
+    required_error: 'Please select your gender',
   }),
 });
 
-// Step 2 validation (placeholder - update when step 2 is defined)
+// Step 2 validation - Training Experience
 export const step2Schema = z.object({
-  // Add step 2 fields here
-}).passthrough(); // Allow additional fields
+  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced'], {
+    required_error: 'Please select an experience level',
+  }),
+});
 
-// Step 3 validation (placeholder - update when step 3 is defined)
+// Step 3 validation - Injury History
 export const step3Schema = z.object({
-  // Add step 3 fields here
-}).passthrough(); // Allow additional fields
+  injuries: z.array(z.string()).optional(),
+  otherDetails: z.string().optional(),
+});
 
-// Step 4 validation (placeholder - update when step 4 is defined)
+// Step 4 validation - Goal Selection
 export const step4Schema = z.object({
-  // Add step 4 fields here
-}).passthrough(); // Allow additional fields
+  goal: z.enum(['muscle-gain', 'fat-loss', 'maintenance'], {
+    required_error: 'Please select a goal',
+  }),
+});
 

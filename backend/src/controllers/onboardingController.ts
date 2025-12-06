@@ -13,13 +13,13 @@ export const saveStep1 = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const { goal, trainingLevel } = req.body;
+    const { gender } = req.body;
 
     const user = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
-          'onboarding.step1': { goal, trainingLevel },
+          'onboarding.step1': { gender },
         },
       },
       { new: true }
