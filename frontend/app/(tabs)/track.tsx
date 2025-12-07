@@ -80,7 +80,7 @@ export default function TrackScreen() {
                 <TextInput
                   style={styles.textInput}
                   placeholder="What's on your mind? How was your workout?"
-                  placeholderTextColor={COLORS.textTertiary}
+                  placeholderTextColor={COLORS.textSecondary}
                   multiline
                   textAlignVertical="top"
                   value={entryText}
@@ -118,11 +118,11 @@ export default function TrackScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: COLORS.background,
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: 'row',
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     padding: SPACING.sm,
   },
   charCount: {
-    color: COLORS.textTertiary,
+    color: COLORS.textSecondary,
     fontSize: 12,
     fontFamily: FONTS.regular,
     marginRight: SPACING.sm,

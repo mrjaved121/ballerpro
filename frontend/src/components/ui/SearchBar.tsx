@@ -1,82 +1,43 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
-import { Ionicons } from '@expo/vector-icons';
+import { View, TextInput, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { COLORS, SPACING, SIZES, FONTS } from '@/constants/theme';
 
-interface SearchBarProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  onFilterPress?: () => void;
-}
-
-export const SearchBar: React.FC<SearchBarProps> = ({
-  value,
-  onChangeText,
-  placeholder = 'Search...',
-  onFilterPress,
-}) => {
+export default function SearchBar() {
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <Ionicons
-          name="search"
-          size={20}
-          color={colors.textSecondary}
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={colors.textSecondary}
-        />
+      <View style={styles.iconContainer}>
+        <MaterialIcons name="search" size={24} color={COLORS.textSecondary} />
       </View>
-      {onFilterPress && (
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={onFilterPress}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="options" size={20} color={colors.text} />
-        </TouchableOpacity>
-      )}
+      <TextInput
+        style={styles.input}
+        placeholder="Search recipes..."
+        placeholderTextColor={COLORS.textSecondary}
+      />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    gap: spacing.md,
+    height: 48,
+    backgroundColor: COLORS.surface,
+    borderRadius: SIZES.radius,
+    marginHorizontal: SPACING.l,
+    marginBottom: SPACING.m,
+    overflow: 'hidden',
   },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
+  iconContainer: {
+    width: 48,
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.md,
-  },
-  searchIcon: {
-    marginRight: spacing.sm,
   },
   input: {
     flex: 1,
-    height: 48,
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-  },
-  filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surfaceLight,
-    alignItems: 'center',
-    justifyContent: 'center',
+    color: COLORS.text,
+    fontFamily: FONTS.regular,
+    fontSize: 16,
+    paddingRight: SPACING.m,
   },
 });
