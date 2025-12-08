@@ -1,9 +1,21 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, SIZES, FONTS } from '@/constants/theme';
 
-export default function SearchBar() {
+interface SearchBarProps {
+  value?: string;
+  onChangeText?: (text: string) => void;
+  placeholder?: string;
+  onFilterPress?: () => void;
+}
+
+export default function SearchBar({
+  value,
+  onChangeText,
+  placeholder = "Search...",
+  onFilterPress,
+}: SearchBarProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -11,9 +23,16 @@ export default function SearchBar() {
       </View>
       <TextInput
         style={styles.input}
-        placeholder="Search recipes..."
+        placeholder={placeholder}
         placeholderTextColor={COLORS.textSecondary}
+        value={value}
+        onChangeText={onChangeText}
       />
+      {onFilterPress && (
+        <TouchableOpacity style={styles.filterButton} onPress={onFilterPress}>
+          <MaterialIcons name="filter-list" size={24} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -39,5 +58,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular,
     fontSize: 16,
     paddingRight: SPACING.m,
+  },
+  filterButton: {
+    width: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -13,7 +13,7 @@ import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
 import StatusBanner from '@/components/ui/StatusBanner';
 import PlanCard from '@/components/ui/PlanCard';
 
-export default function PremiumScreen() {
+export default function SubscriptionScreen() {
   const [selectedPlan, setSelectedPlan] = useState<'yearly' | 'monthly'>('yearly');
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -23,7 +23,7 @@ export default function PremiumScreen() {
         <TouchableOpacity style={styles.iconButton}>
           <MaterialIcons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Go Premium</Text>
+        <Text style={styles.headerTitle}>Subscription</Text>
         <View style={styles.iconButton} />
       </View>
       <ScrollView 

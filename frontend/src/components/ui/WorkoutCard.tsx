@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
+import { SIZES } from '@/constants/theme';
 import { Button } from '../Button';
 import { Workout } from '../../constants/workouts';
 
@@ -68,7 +68,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onStart }) =>
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.inputBg,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     overflow: 'hidden',
     marginBottom: spacing.lg,
   },
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   tag: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    borderRadius: borderRadius.sm,
+    borderRadius: SIZES.radiusSm,
   },
   tagNew: {
     backgroundColor: colors.accent,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   startButton: {
     width: '100%',
-    borderRadius: borderRadius.md,
+    borderRadius: SIZES.radius,
     height: 48,
   },
 });

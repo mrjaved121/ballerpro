@@ -13,8 +13,9 @@ import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { Button } from '../../src/components/Button';
 import { onboardingService } from '../../src/services/onboarding/onboardingService';
 import { colors } from '../../src/theme/colors';
-import { spacing, borderRadius } from '../../src/theme/spacing';
+import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
+import { SIZES } from '@/constants/theme';
 
 type Gender = 'male' | 'female' | 'other';
 
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     height: 64,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     borderWidth: 2,
     borderColor: colors.inputBg,
     backgroundColor: colors.inputBg,

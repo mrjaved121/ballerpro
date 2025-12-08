@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { typography } from '../../theme/typography';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     padding: spacing.lg,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     backgroundColor: colors.inputBg,
     borderWidth: 2,
     borderColor: 'transparent',

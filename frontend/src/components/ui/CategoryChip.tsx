@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { typography } from '../../theme/typography';
 
 interface CategoryChipProps {
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    borderRadius: borderRadius.full,
+    borderRadius: SIZES.radiusFull,
     backgroundColor: colors.surfaceLight,
     borderWidth: 1,
     borderColor: 'transparent',

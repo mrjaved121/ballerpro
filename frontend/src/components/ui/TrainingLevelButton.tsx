@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { typography } from '../../theme/typography';
 
 interface TrainingLevelButtonProps {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.full,
+    borderRadius: SIZES.radiusFull,
     backgroundColor: colors.inputBg,
     borderWidth: 1,
     borderColor: colors.surfaceLight,

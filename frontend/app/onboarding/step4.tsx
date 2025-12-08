@@ -13,6 +13,7 @@ import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { GoalCard } from '../../src/components/ui/GoalCard';
 import { Button } from '../../src/components/Button';
 import { onboardingService } from '../../src/services/onboarding/onboardingService';
+import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -42,6 +43,7 @@ const GOAL_OPTIONS = [
 
 export default function OnboardingStep4() {
   const router = useRouter();
+  const { completeOnboarding, updateOnboardingData } = useAuth();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>('fat-loss');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,13 +58,19 @@ export default function OnboardingStep4() {
       setIsLoading(true);
       setError(null);
       
-      // Save step 4 and complete onboarding
+      // Save goal to auth context
+      await updateOnboardingData({ goals: [selectedGoal] });
+      
+      // Save step 4 to onboarding service
       await onboardingService.saveStep4({
         goal: selectedGoal,
       });
       
-      // Navigate to main app
-      router.replace('/(tabs)');
+      // Mark onboarding as complete
+      await completeOnboarding();
+      
+      // Navigation handled by index.tsx
+      console.log('[Onboarding] Completed successfully');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to complete. Please try again.';
       setError(errorMessage);

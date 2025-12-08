@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface VideoPlayerProps {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   videoContainer: {
     width: '100%',
     aspectRatio: 16 / 9,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     overflow: 'hidden',
     marginBottom: spacing.md,
   },

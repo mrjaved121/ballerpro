@@ -4,6 +4,137 @@ All major changes, code additions, and organizational work will be tracked here 
 
 ---
 
+## [ONBOARDING NAVIGATION IMPROVED] (2025-12-08)
+- **Feature:** Enhanced navigation logging for onboarding redirect after signup
+- **Updated:**
+  - `app/index.tsx`: Added detailed navigation logs with emojis for easier debugging
+  - `AuthContext.tsx`: Added log after successful registration showing onboarding status
+- **Logging added:**
+  - 🔍 Navigation checks with full state info
+  - 🚀 Login redirects
+  - 🎓 Onboarding redirects (for new users)
+  - 🏠 Main app redirects (for completed onboarding)
+- **Why this matters:** Makes it easier to debug navigation issues and see exactly when redirects happen
+- **Status:** ✅ Enhanced - Should redirect to onboarding after signup with clear console logs
+
+---
+
+## [COMPLETE INPUT COMPONENT REWRITE] (2025-12-08)
+- **Problem:** Focus jumping between TextInput fields in Login & Register screens
+- **Root Causes:** 
+  1. Re-renders from AuthContext `isLoading` causing Input components to remount
+  2. Missing React.memo optimization
+  3. Shadow effects causing performance issues on focus
+- **Complete Rewrite:**
+  - `Input.tsx`: Full rewrite with React.memo and custom comparison function
+  - Added `useCallback` for all event handlers (prevents recreation on every render)
+  - Simplified secureTextEntry logic
+  - Removed shadow effects from focused state (performance)
+  - Added `underlineColorAndroid="transparent"` and `autoCorrect={false}`
+  - Custom memo comparison: only re-render if value, error, or label changes
+- **Loading State Fix:**
+  - `login.tsx`: Use local `isLoading` state instead of AuthContext
+  - `register.tsx`: Use local `isLoading` state instead of AuthContext
+- **New Feature:**
+  - `debug_tester.tsx`: Manual navigation screen to test any screen directly
+  - Added "Tester" tab to bottom navigation
+- **Why this matters:** Prevents unnecessary re-renders that cause focus jumping
+- **Status:** ✅ Fixed - Inputs should maintain focus now
+
+---
+
+## [INPUT FOCUS LOOP FIX] (2025-12-08)
+- **Problem:** Stuck in focus loop between input fields on login/register screens
+- **Root Cause:** `selectTextOnFocus={true}` was causing inputs to continuously refocus
+- **Fixed:**
+  - `Input.tsx`: Removed `selectTextOnFocus` and `editable` props (using defaults)
+  - `login.tsx`: Added `returnKeyType` ("next" for email, "done" for password)
+  - `register.tsx`: Added `returnKeyType` ("next" for email/password, "done" for confirm)
+- **Why this matters:** Users can now type normally and navigate between fields using keyboard
+- **Status:** ✅ Fixed - Focus should stay on tapped field
+
+---
+
+## [INPUT FIELDS FIX - LOGIN & REGISTER] (2025-12-08)
+- **Problem:** Unable to type in login and register screens
+- **Root Cause:** KeyboardAvoidingView behavior blocking input on Android
+- **Fixed:**
+  - `login.tsx`: Changed KeyboardAvoidingView behavior from 'height' to `undefined` on Android
+  - `register.tsx`: Changed KeyboardAvoidingView behavior from 'height' to `undefined` on Android
+  - Updated `keyboardShouldPersistTaps` from 'handled' to 'always'
+- **Why this matters:** Users can now tap and type in input fields
+- **Status:** ✅ Fixed
+
+---
+
+## [AUTH & ONBOARDING FLOW SETUP] (2025-12-08)
+- **Feature:** Complete authentication and onboarding system
+- **Screen Renames:**
+  - `integrations.tsx` → `wearables.tsx` (Wearables & Integrations)
+  - `premium.tsx` → `subscription.tsx` (Subscription)
+- **New Files Created:**
+  - `src/types/auth.ts` - User, auth state, and onboarding types
+  - `src/services/auth/storage.ts` - Mock storage service (in-memory)
+  - `src/services/auth/authService.ts` - Mock API for login/register/logout
+  - `src/contexts/AuthContext.tsx` - Global auth state management
+  - `TESTING_GUIDE_AUTH_FLOW.md` - Complete testing guide
+- **Updated Files:**
+  - `app/index.tsx` - Smart routing based on auth state
+  - `app/_layout.tsx` - Fixed AuthContext import path
+  - `app/auth/login.tsx` - Integrated with AuthContext
+  - `app/auth/register.tsx` - Integrated with AuthContext
+  - `app/onboarding/step4.tsx` - Completes onboarding via AuthContext
+  - `app/(tabs)/_layout.tsx` - Updated screen names
+- **Navigation Flow:**
+  - Not authenticated → Login screen
+  - Authenticated but no onboarding → Onboarding flow (4 steps)
+  - Authenticated + onboarding complete → Main app
+- **Demo Account:**
+  - Email: `demo@ballerpro.com`
+  - Password: `demo123`
+  - Status: Onboarding already completed
+- **Why this matters:** Full authentication flow ready for testing. Users can register, complete onboarding, login, and logout with proper state management and automatic navigation.
+- **Status:** ✅ Ready for testing
+
+---
+
+## [TRAIN SCREEN & SEARCHBAR FIXED] (2025-12-08)
+- **Problem:** Train screen crashing with "Element type is invalid: got undefined" error
+- **Root Cause #1:** `train.tsx` was using `router.push()` without importing `useRouter` hook
+- **Root Cause #2:** `SearchBar.tsx` component didn't accept props, but train.tsx was passing props to it
+- **Fixed:** 
+  - `train.tsx`: Added `import { useRouter } from 'expo-router'` and hook initialization
+  - `SearchBar.tsx`: Made component reusable by adding props interface:
+    - `value?: string` - for controlled input
+    - `onChangeText?: (text: string) => void` - for text changes
+    - `placeholder?: string` - custom placeholder text (defaults to "Search...")
+    - `onFilterPress?: () => void` - optional filter button handler
+  - Added filter button icon that appears only when `onFilterPress` is provided
+- **Why this matters:** SearchBar is now a reusable component across the app (Recipe Library, Train screen, etc.)
+- **Status:** ✅ Fixed - Train screen should now work properly
+
+---
+
+## [BORDER RADIUS ERRORS FIXED - ALL FILES] (2025-12-08)
+- **Problem:** App was crashing with "Property 'borderRadius' doesn't exist" error across multiple files
+- **Root Cause:** Old code was importing `borderRadius` from `../../theme/spacing` which doesn't exist in current theme structure
+- **Fixed 18 Files Total:**
+  - **Main Screens (2):** `workouts/[id].tsx`, `onboarding/step1.tsx`, `onboarding/step3.tsx`
+  - **UI Components (14):** `WorkoutCard`, `VideoPlayer`, `TimerControl`, `TrainingLevelButton`, `TabSwitcher`, `StatCard`, `SelectionCard`, `SocialButton`, `ProgressBar`, `MacroCard`, `MealItem`, `Input`, `InjuryChip`, `GoalCard`, `CategoryChip`, `RecipeCard`
+  - **Config (1):** `babel.config.js` - Removed deprecated `expo-router/babel` plugin
+- **Solution Applied:**
+  - Removed old `import { borderRadius } from '../../theme/spacing'`
+  - Added `import { SIZES } from '@/constants/theme'`
+  - Replaced all instances:
+    - `borderRadius.lg` → `SIZES.radiusLg`
+    - `borderRadius.md` → `SIZES.radius`
+    - `borderRadius.sm` → `SIZES.radiusSm`
+    - `borderRadius.full` → `SIZES.radiusFull`
+- **Why this matters:** All border radius values now come from the centralized theme file (`src/constants/theme.ts`), ensuring consistency across the entire app
+- **Status:** ✅ Fixed - App should now start without errors
+
+---
+
 ## [EXPO SDK 54 DEPENDENCY CONFLICT FIX] (2025-12-08)
 - **Issue:** `npx expo install --fix` failed with ERESOLVE dependency conflict
 - **Root Cause:** npm couldn't resolve circular dependencies between React 19, React Native 0.81, and expo-router v6

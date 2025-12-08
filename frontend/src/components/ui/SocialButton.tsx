@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface SocialButtonProps {
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 56,
     backgroundColor: '#FFFFFF',
-    borderRadius: borderRadius.md,
+    borderRadius: SIZES.radius,
     justifyContent: 'center',
     alignItems: 'center',
   },

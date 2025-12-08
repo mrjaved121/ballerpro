@@ -2,7 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { typography } from '../../theme/typography';
 
 interface TabSwitcherProps {
@@ -38,14 +38,14 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.full,
+    borderRadius: SIZES.radiusFull,
     padding: spacing.xs,
     gap: spacing.xs,
   },
   tab: {
     flex: 1,
     paddingVertical: spacing.md,
-    borderRadius: borderRadius.full,
+    borderRadius: SIZES.radiusFull,
     alignItems: 'center',
     justifyContent: 'center',
   },

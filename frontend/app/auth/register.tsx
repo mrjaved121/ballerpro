@@ -14,7 +14,7 @@ import { Input } from '../../src/components/ui/Input';
 import { Button } from '../../src/components/Button';
 import { SocialButton } from '../../src/components/ui/SocialButton';
 import { Checkbox } from '../../src/components/ui/Checkbox';
-import { useAuth } from '../../src/context/AuthContext';
+import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -22,12 +22,13 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { register, isLoading } = useAuth();
+  const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async () => {
     // Validation
@@ -52,13 +53,16 @@ export default function RegisterScreen() {
     }
 
     try {
+      setIsLoading(true);
       setError(null);
-      await register(email, password);
-      // Navigation handled by auth context
+      await register({ name: email.split('@')[0], email, password });
+      // Navigation handled by index.tsx based on auth state
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to register. Please try again.';
       setError(errorMessage);
       Alert.alert('Registration Failed', errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,12 +79,14 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+        keyboardShouldPersistTaps="always"
+        bounces={false}
       >
         <View style={styles.content}>
           {/* Icon - Red circle with diamond */}
@@ -106,6 +112,7 @@ export default function RegisterScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              returnKeyType="next"
             />
 
             <Input
@@ -117,6 +124,7 @@ export default function RegisterScreen() {
               showPasswordToggle
               autoCapitalize="none"
               autoComplete="password"
+              returnKeyType="next"
             />
 
             <Input
@@ -128,6 +136,7 @@ export default function RegisterScreen() {
               showPasswordToggle
               autoCapitalize="none"
               autoComplete="password"
+              returnKeyType="done"
             />
           </View>
 

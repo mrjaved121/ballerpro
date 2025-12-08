@@ -15,8 +15,9 @@ import { InjuryChip } from '../../src/components/ui/InjuryChip';
 import { Button } from '../../src/components/Button';
 import { onboardingService } from '../../src/services/onboarding/onboardingService';
 import { colors } from '../../src/theme/colors';
-import { spacing, borderRadius } from '../../src/theme/spacing';
+import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
+import { SIZES } from '@/constants/theme';
 
 type InjuryType = 'Knees' | 'Shoulders' | 'Lower Back' | 'Hips' | 'Ankles' | 'Wrists' | 'Neck';
 
@@ -238,7 +239,7 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 160,
     padding: spacing.md,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     backgroundColor: colors.inputBg,
     borderWidth: 1,
     borderColor: colors.borderLight,
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
   },
   noInjuriesButton: {
     height: 56,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     borderWidth: 2,
     borderColor: colors.borderLight,
     backgroundColor: 'transparent',

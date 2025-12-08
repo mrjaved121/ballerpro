@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import {
   View,
   TextInput,
@@ -10,7 +10,7 @@ import {
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface InputProps extends TextInputProps {
@@ -19,7 +19,7 @@ interface InputProps extends TextInputProps {
   showPasswordToggle?: boolean;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input: React.FC<InputProps> = memo(({
   label,
   error,
   showPasswordToggle = false,
@@ -28,6 +28,18 @@ export const Input: React.FC<InputProps> = ({
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+  }, []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setIsPasswordVisible(prev => !prev);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -41,15 +53,18 @@ export const Input: React.FC<InputProps> = ({
         <TextInput
           style={styles.input}
           placeholderTextColor={colors.textSecondary}
-          secureTextEntry={showPasswordToggle && !isPasswordVisible}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          secureTextEntry={showPasswordToggle ? !isPasswordVisible : secureTextEntry}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          underlineColorAndroid="transparent"
+          autoCorrect={false}
           {...props}
         />
         {showPasswordToggle && (
           <TouchableOpacity
-            onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+            onPress={togglePasswordVisibility}
             style={styles.eyeIcon}
+            activeOpacity={0.7}
           >
             <Ionicons
               name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
@@ -62,7 +77,16 @@ export const Input: React.FC<InputProps> = ({
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison to prevent unnecessary re-renders
+  return (
+    prevProps.value === nextProps.value &&
+    prevProps.error === nextProps.error &&
+    prevProps.label === nextProps.label
+  );
+});
+
+Input.displayName = 'Input';
 
 const styles = StyleSheet.create({
   container: {
@@ -79,7 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.inputBg,
-    borderRadius: borderRadius.md,
+    borderRadius: SIZES.radius,
     height: 56,
     paddingHorizontal: spacing.md,
     borderWidth: 2,
@@ -87,17 +111,13 @@ const styles = StyleSheet.create({
   },
   inputContainerFocused: {
     borderColor: colors.primary,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 4,
   },
   input: {
     flex: 1,
     color: colors.text,
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.normal,
+    height: 56,
   },
   eyeIcon: {
     padding: spacing.xs,

@@ -13,7 +13,7 @@ import { COLORS, FONTS, SPACING } from '@/constants/theme';
 import IntegrationRow from '@/components/ui/IntegrationRow';
 import { Integration } from '@/types/integration';
 
-export default function IntegrationsScreen() {
+export default function WearablesScreen() {
   const [integrations, setIntegrations] = useState<Integration[]>([
     {
       id: '1',
@@ -77,7 +77,7 @@ export default function IntegrationsScreen() {
         <TouchableOpacity style={styles.backButton}>
           <MaterialIcons name="arrow-back-ios-new" size={24} color={COLORS.textSecondary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Integrations</Text>
+        <Text style={styles.headerTitle}>Wearables & Integrations</Text>
         <View style={styles.placeholder} />
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>

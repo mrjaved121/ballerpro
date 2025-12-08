@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { typography } from '../../theme/typography';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.inputBg,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     padding: spacing.md,
     gap: spacing.md,
   },

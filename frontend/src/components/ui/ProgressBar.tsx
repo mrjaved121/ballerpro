@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 
 interface ProgressBarProps {
   currentStep: number;
@@ -31,12 +31,12 @@ const styles = StyleSheet.create({
   track: {
     height: 8,
     backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.full,
+    borderRadius: SIZES.radiusFull,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
     backgroundColor: colors.accent,
-    borderRadius: borderRadius.full,
+    borderRadius: SIZES.radiusFull,
   },
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
-import { borderRadius } from '../../theme/spacing';
+import { SIZES } from '@/constants/theme';
 import { typography } from '../../theme/typography';
 
 interface StatCardProps {
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     padding: spacing.md,
-    borderRadius: borderRadius.lg,
+    borderRadius: SIZES.radiusLg,
     backgroundColor: colors.inputBg,
     alignItems: 'center',
   },

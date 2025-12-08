@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { Input } from '../../src/components/ui/Input';
 import { Button } from '../../src/components/Button';
 import { SocialButton } from '../../src/components/ui/SocialButton';
-import { useAuth } from '../../src/context/AuthContext';
+import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -21,10 +21,11 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,13 +34,16 @@ export default function LoginScreen() {
     }
 
     try {
+      setIsLoading(true);
       setError(null);
-      await login(email, password);
-      // Navigation handled by auth context
+      await login({ email, password });
+      // Navigation handled by index.tsx based on auth state
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to login. Please try again.';
       setError(errorMessage);
       Alert.alert('Login Failed', errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,12 +65,14 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+        keyboardShouldPersistTaps="always"
+        bounces={false}
       >
         <View style={styles.content}>
           {/* Icon */}
@@ -88,6 +94,7 @@ export default function LoginScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
+              returnKeyType="next"
             />
 
             <Input
@@ -99,6 +106,7 @@ export default function LoginScreen() {
               showPasswordToggle
               autoCapitalize="none"
               autoComplete="password"
+              returnKeyType="done"
             />
           </View>
 

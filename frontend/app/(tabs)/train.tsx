@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { TabSwitcher } from '../../src/components/ui/TabSwitcher';
-import { SearchBar } from '../../src/components/ui/SearchBar';
+import SearchBar from '../../src/components/ui/SearchBar';
 import { CategoryChip } from '../../src/components/ui/CategoryChip';
 import { WorkoutCard } from '../../src/components/ui/WorkoutCard';
 import { WORKOUTS, CATEGORIES, Workout } from '../../src/constants/workouts';
@@ -20,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 type Tab = 'Workouts' | 'Programs';
 
 export default function TrainScreen() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('Workouts');
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');

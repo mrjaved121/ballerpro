@@ -16,6 +16,7 @@ import { Button } from '../../src/components/Button';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
+import { SIZES } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface ExerciseStep {
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
   saveButton: {
     width: '100%',
     height: 56,
-    borderRadius: borderRadius.md,
+    borderRadius: SIZES.radius,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',

@@ -1,222 +1,147 @@
-import api from '../api/api';
-import * as SecureStore from 'expo-secure-store';
+// Mock Authentication Service
+// Simulates API calls for login, register, logout
 
-const TOKEN_KEY = 'auth_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
-const USER_KEY = 'user_data';
+import { User, LoginCredentials, RegisterCredentials } from '@/types/auth';
+import { storage } from './storage';
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
+// Mock user database (in production, this would be a backend API)
+const mockUsers: { [email: string]: { password: string; user: User } } = {
+  'demo@ballerpro.com': {
+    password: 'demo123',
+    user: {
+      id: '1',
+      email: 'demo@ballerpro.com',
+      name: 'Demo User',
+      isPremium: false,
+      onboardingCompleted: true,
+      createdAt: new Date().toISOString(),
+    },
+  },
+};
 
-export interface RegisterData {
-  email: string;
-  password: string;
-  name?: string;
-}
+// Simulate network delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export interface AuthResponse {
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    avatar?: string;
-    isEmailVerified: boolean;
-  };
-  token: string;
-  refreshToken: string;
-}
+export const authService = {
+  /**
+   * Login with email and password
+   */
+  async login(credentials: LoginCredentials): Promise<User> {
+    console.log('[Auth] Login attempt:', credentials.email);
+    await delay(1000); // Simulate network delay
 
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-  avatar?: string;
-  isEmailVerified: boolean;
-}
-
-class AuthService {
-  // Register new user
-  async register(data: RegisterData): Promise<AuthResponse> {
-    try {
-      const response = await api.post('/auth/register', data);
-      const authData = response.data.data;
-
-      // Store tokens and user data
-      await this.setTokens(authData.token, authData.refreshToken);
-      await this.setUser(authData.user);
-
-      return authData;
-    } catch (error: any) {
-      throw this.handleError(error);
+    const userRecord = mockUsers[credentials.email.toLowerCase()];
+    
+    if (!userRecord) {
+      throw new Error('User not found');
     }
-  }
 
-  // Login user
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    try {
-      const response = await api.post('/auth/login', credentials);
-      const authData = response.data.data;
-
-      // Store tokens and user data
-      await this.setTokens(authData.token, authData.refreshToken);
-      await this.setUser(authData.user);
-
-      return authData;
-    } catch (error: any) {
-      throw this.handleError(error);
+    if (userRecord.password !== credentials.password) {
+      throw new Error('Invalid password');
     }
-  }
 
-  // Logout user
+    // Save to storage
+    await storage.saveToken('mock_token_' + Date.now());
+    await storage.saveUser(userRecord.user);
+
+    console.log('[Auth] Login successful:', userRecord.user.email);
+    return userRecord.user;
+  },
+
+  /**
+   * Register new user
+   */
+  async register(credentials: RegisterCredentials): Promise<User> {
+    console.log('[Auth] Register attempt:', credentials.email);
+    await delay(1000);
+
+    const emailLower = credentials.email.toLowerCase();
+
+    if (mockUsers[emailLower]) {
+      throw new Error('Email already exists');
+    }
+
+    const newUser: User = {
+      id: Date.now().toString(),
+      email: emailLower,
+      name: credentials.name,
+      isPremium: false,
+      onboardingCompleted: false, // New users need onboarding
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add to mock database
+    mockUsers[emailLower] = {
+      password: credentials.password,
+      user: newUser,
+    };
+
+    // Save to storage
+    await storage.saveToken('mock_token_' + Date.now());
+    await storage.saveUser(newUser);
+
+    console.log('[Auth] Registration successful:', newUser.email);
+    return newUser;
+  },
+
+  /**
+   * Logout current user
+   */
   async logout(): Promise<void> {
-    try {
-      // Call logout endpoint (optional)
-      await api.post('/auth/logout');
-    } catch (error) {
-      // Continue with logout even if API call fails
-      console.warn('Logout API call failed:', error);
-    } finally {
-      // Clear local storage
-      await this.clearAuth();
-    }
-  }
+    console.log('[Auth] Logout initiated');
+    await delay(300);
+    
+    await storage.clearAll();
+    
+    console.log('[Auth] Logout successful');
+  },
 
-  // Get current user
-  async getCurrentUser(): Promise<User> {
-    try {
-      const response = await api.get('/auth/me');
-      return response.data.data.user;
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
+  /**
+   * Get current authenticated user
+   */
+  async getCurrentUser(): Promise<User | null> {
+    const user = await storage.getUser();
+    const token = await storage.getToken();
 
-  // Refresh token
-  async refreshToken(): Promise<{ token: string; refreshToken: string }> {
-    try {
-      const refreshToken = await this.getRefreshToken();
-      if (!refreshToken) {
-        throw new Error('No refresh token available');
-      }
-
-      const response = await api.post('/auth/refresh-token', {
-        refreshToken,
-      });
-
-      const { token, refreshToken: newRefreshToken } = response.data.data;
-      await this.setTokens(token, newRefreshToken);
-
-      return { token, refreshToken: newRefreshToken };
-    } catch (error: any) {
-      // If refresh fails, clear auth
-      await this.clearAuth();
-      throw this.handleError(error);
-    }
-  }
-
-  // Forgot password
-  async forgotPassword(email: string): Promise<void> {
-    try {
-      await api.post('/auth/forgot-password', { email });
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
-  // Reset password
-  async resetPassword(token: string, password: string): Promise<void> {
-    try {
-      await api.post('/auth/reset-password', { token, password });
-    } catch (error: any) {
-      throw this.handleError(error);
-    }
-  }
-
-  // Token management
-  async getToken(): Promise<string | null> {
-    try {
-      return await SecureStore.getItemAsync(TOKEN_KEY);
-    } catch (error) {
-      console.error('Error getting token:', error);
+    if (!user || !token) {
       return null;
     }
-  }
 
-  async getRefreshToken(): Promise<string | null> {
-    try {
-      return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-    } catch (error) {
-      console.error('Error getting refresh token:', error);
-      return null;
+    console.log('[Auth] Current user:', user.email);
+    return user;
+  },
+
+  /**
+   * Update user data (e.g., after onboarding)
+   */
+  async updateUser(updates: Partial<User>): Promise<User> {
+    const currentUser = await storage.getUser();
+    
+    if (!currentUser) {
+      throw new Error('No authenticated user');
     }
-  }
 
-  async setTokens(token: string, refreshToken: string): Promise<void> {
-    try {
-      await SecureStore.setItemAsync(TOKEN_KEY, token);
-      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
-    } catch (error) {
-      console.error('Error storing tokens:', error);
-      throw error;
+    const updatedUser: User = {
+      ...currentUser,
+      ...updates,
+    };
+
+    // Update in mock database
+    if (mockUsers[currentUser.email]) {
+      mockUsers[currentUser.email].user = updatedUser;
     }
-  }
 
-  // User data management
-  async getUser(): Promise<User | null> {
-    try {
-      const userData = await SecureStore.getItemAsync(USER_KEY);
-      return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      console.error('Error getting user:', error);
-      return null;
-    }
-  }
+    // Update storage
+    await storage.saveUser(updatedUser);
 
-  async setUser(user: User): Promise<void> {
-    try {
-      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user));
-    } catch (error) {
-      console.error('Error storing user:', error);
-    }
-  }
+    console.log('[Auth] User updated:', updatedUser.email);
+    return updatedUser;
+  },
 
-  // Clear all auth data
-  async clearAuth(): Promise<void> {
-    try {
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
-      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-      await SecureStore.deleteItemAsync(USER_KEY);
-    } catch (error) {
-      console.error('Error clearing auth:', error);
-    }
-  }
-
-  // Check if user is authenticated
-  async isAuthenticated(): Promise<boolean> {
-    const token = await this.getToken();
-    return !!token;
-  }
-
-  // Error handler
-  private handleError(error: any): Error {
-    if (error.response) {
-      // Server responded with error
-      const message = error.response.data?.message || 'An error occurred';
-      const errors = error.response.data?.errors;
-      const errorObj: any = new Error(message);
-      errorObj.errors = errors;
-      errorObj.status = error.response.status;
-      return errorObj;
-    } else if (error.request) {
-      // Request made but no response
-      return new Error('Network error. Please check your connection.');
-    } else {
-      // Something else happened
-      return new Error(error.message || 'An unexpected error occurred');
-    }
-  }
-}
-
-export const authService = new AuthService();
+  /**
+   * Complete onboarding
+   */
+  async completeOnboarding(): Promise<User> {
+    return this.updateUser({ onboardingCompleted: true });
+  },
+};

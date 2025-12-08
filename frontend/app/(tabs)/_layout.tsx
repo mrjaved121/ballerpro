@@ -23,6 +23,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="debug_tester"
+        options={{
+          title: 'Tester',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="science" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
@@ -73,11 +82,11 @@ export default function TabsLayout() {
       <Tabs.Screen name="calculator" options={{ href: null }} />
       <Tabs.Screen name="cart" options={{ href: null }} />
       <Tabs.Screen name="checkout" options={{ href: null }} />
-      <Tabs.Screen name="integrations" options={{ href: null }} />
+      <Tabs.Screen name="wearables" options={{ href: null }} />
       <Tabs.Screen name="leaderboard" options={{ href: null }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="order_history" options={{ href: null }} />
-      <Tabs.Screen name="premium" options={{ href: null }} />
+      <Tabs.Screen name="subscription" options={{ href: null }} />
       <Tabs.Screen name="product_detail" options={{ href: null }} />
       <Tabs.Screen name="recipes" options={{ href: null }} />
       <Tabs.Screen name="referral" options={{ href: null }} />
