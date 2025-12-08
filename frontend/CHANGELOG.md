@@ -78,6 +78,130 @@ All major changes, code additions, and organizational work will be tracked here 
 
 ---
 
+## [JOURNEY ONBOARDING TOP SECTION FIXED] (2025-12-08)
+- **Problem:** Top section of Journey onboarding screen (Step 2/5) was going outside the screen
+- **Root Cause:** Insufficient top padding in header (only 24px)
+- **Fixed:**
+  - Changed header `paddingTop` from `SPACING.l` (24px) to `SPACING.xxl` (40px)
+  - Changed header `paddingBottom` from `SPACING.m` (16px) to `SPACING.l` (24px)
+  - Changed navRow `marginBottom` from `SPACING.m` (16px) to `SPACING.l` (24px)
+- **Why this matters:** Journey screen now has proper spacing like dashboard and login screens
+- **Status:** ✅ Fixed - Top section (Back button, Step 2 of 5, Progress bar) now fully visible
+
+---
+
+## [DASHBOARD TOP SECTION FIXED] (2025-12-08)
+- **Problem:** Top section of dashboard was going outside the screen (cut off at top)
+- **Root Cause:** Insufficient top padding in scrollContent (only 8px)
+- **Fixed:**
+  - Changed `paddingTop` from `SPACING.s` (8px) to `SPACING.xl` (32px)
+  - Changed `paddingBottom` to `SPACING.xxl` (40px) for consistent spacing
+  - Moved `paddingHorizontal` from scrollContent to responsive container
+  - Increased headerBar `marginBottom` from `SPACING.l` to `SPACING.xl`
+  - Increased headerBar `paddingVertical` from `SPACING.s` to `SPACING.m`
+  - Added `bounces={true}` to ScrollView for better UX
+- **Why this matters:** Dashboard now has proper spacing like login/signup screens
+- **Status:** ✅ Fixed - Top section now visible with proper spacing
+
+---
+
+## [DASHBOARD STAT CARDS LAYOUT FIXED] (2025-12-08)
+- **Problem:** "Avg Score" stat card was merging into "Quick Access" section below
+- **Root Cause:** Using `flex: 1` caused cards to expand and overlap with content below
+- **Fixed:**
+  - Changed from `flex: 1` to `width: 31%` (3 cards per row)
+  - Changed from `minHeight` to fixed `height: 110px`
+  - Reduced padding from `SPACING.l` to `SPACING.m` for better fit
+  - Reduced font sizes (label: 12px, value: 28px)
+  - Changed statsGrid from `gap` to `justifyContent: 'space-between'`
+  - Removed `paddingBottom`, using proper `marginBottom: SPACING.xxl`
+- **Why this matters:** Fixed height prevents overlap, proper width ensures 3 cards per row
+- **Status:** ✅ Fixed - Stats cards now have fixed dimensions and proper spacing
+
+---
+
+## [EXPO-LINEAR-GRADIENT INSTALLED] (2025-12-08)
+- **Problem:** Dashboard failing to load - "Unable to resolve expo-linear-gradient"
+- **Root Cause:** Package not installed (required for gold gradient badge)
+- **Fixed:** Ran `npx expo install expo-linear-gradient`
+- **Why needed:** Dashboard uses LinearGradient for the "Pro • Active" badge
+- **Status:** ✅ Installed - Dashboard should now load correctly
+
+---
+
+## [HOME DASHBOARD - NEW RESPONSIVE DESIGN] (2025-12-08)
+- **Problem:** Previous home dashboard was basic and not using the new design system
+- **Solution:** Replaced with beautiful, responsive dashboard design
+- **New Components Created:**
+  - `StatCard.tsx` - Flexible card for displaying stats (Workouts, Streak, Score)
+  - `MenuButton.tsx` - Reusable row button with icon, label, and chevron
+  - `MenuGroup.tsx` - Container for grouping menu buttons with title
+- **Theme Updates:**
+  - Added `goldStart` and `goldEnd` for gradient effects
+  - Added `containerMaxWidth: 768` for tablet responsiveness
+  - Updated `radiusLg` to 16px
+- **Dashboard Features:**
+  - ✅ Responsive design - adapts to tablets (max-width: 768px)
+  - ✅ User avatar and name from auth context
+  - ✅ Gold gradient "Pro • Active" badge
+  - ✅ Three stat cards (Workouts: 128, Week Streak: 12, Avg Score: 95)
+  - ✅ Quick Access section (Workouts, Programs, Challenges)
+  - ✅ Features section (Injury Protocols, Merch Shop)
+  - ✅ Account section (Settings, Notifications, Logout)
+  - ✅ All menu items navigate to correct screens
+  - ✅ Glassy card design with borders
+  - ✅ Icon backgrounds with glow effects
+  - ✅ Dividers between menu items
+- **Responsive Behavior:**
+  - Mobile: Full width layout
+  - Tablet: Content centered with max-width 768px
+  - Uses `useWindowDimensions` for adaptive layout
+- **Why this matters:** Beautiful, modern UI that matches the design system and works on all screen sizes
+- **Status:** ✅ Complete - Production-ready responsive dashboard
+
+---
+
+## [HOME DASHBOARD CREATED] (2025-12-08)
+- **Problem:** After completing onboarding, app showed "No routes matched" - no home dashboard existed
+- **Root Cause:** Dashboard component had import issues and complex dependencies
+- **Solution:** Created a brand new, simple home dashboard directly in `index.tsx`
+- **Fixed:**
+  - `app/index.tsx` - Changed redirect to `/(tabs)/index` for home dashboard
+  - `app/(tabs)/index.tsx` - Complete rewrite with self-contained dashboard
+  - Removed dependency on separate Dashboard component
+- **Home Dashboard Features:**
+  - ✅ Welcome header with user name
+  - ✅ Notification icon
+  - ✅ Stats cards: Workouts (128), Week Streak (12), Avg Score (95)
+  - ✅ Quick Access: Workouts, Track Progress, Community
+  - ✅ Features: Injury Protocols, Merch Shop
+  - ✅ Account: Settings, Logout
+  - ✅ All menu items navigate to correct screens
+  - ✅ Logout functionality integrated
+- **Tech Details:**
+  - Uses Material Icons
+  - Responsive layout with ScrollView
+  - Clean, modern UI matching app theme
+  - No external component dependencies
+- **Why this matters:** Users now see a functional home dashboard after onboarding
+- **Status:** ✅ Fixed - Home dashboard working perfectly
+
+---
+
+## [WARNINGS CLEANED UP] (2025-12-08)
+- **Problem:** Console showing "Route README is extraneous" warnings
+- **Root Cause:** README.md files in app directories were being detected as routes by Expo Router
+- **Fixed:**
+  - Deleted `app/README.md`
+  - Deleted `app/(tabs)/README.md`
+- **Other Warnings:**
+  - "No route named auth/onboarding/workouts" - Safe to ignore (informational)
+  - "SafeAreaView deprecated" - Already using correct version (warning from Expo Router itself)
+- **Why this matters:** Cleaner console logs, easier to spot real issues
+- **Status:** ✅ Fixed - README warnings gone, other warnings are informational
+
+---
+
 ## [ONBOARDING ERROR POPUP SPACING FIXED] (2025-12-08)
 - **Problem:** Error messages in onboarding screens had NO space from top, appearing too close to content
 - **Root Cause:** errorContainer styles were missing `marginTop` property

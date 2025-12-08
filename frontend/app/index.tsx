@@ -42,10 +42,10 @@ export default function Index() {
         router.replace('/onboarding/about');
       }
     } else if (user && user.onboardingCompleted) {
-      // Logged in and onboarding complete → redirect to main app
+      // Logged in and onboarding complete → redirect to main app (home dashboard)
       if (inAuthGroup || inOnboardingGroup) {
-        console.log('[Index] 🏠 Redirecting to main app');
-        router.replace('/(tabs)/habit');
+        console.log('[Index] 🏠 Redirecting to home dashboard');
+        router.replace('/(tabs)/index');
       }
     }
   }, [isAuthenticated, user, isLoading, segments, router]);

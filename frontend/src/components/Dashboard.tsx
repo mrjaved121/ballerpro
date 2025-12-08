@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { StatCard } from './ui/StatCard';
 import { MenuItem } from './ui/MenuItem';
 import { colors } from '../theme/colors';

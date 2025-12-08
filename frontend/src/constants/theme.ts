@@ -2,34 +2,37 @@ import { Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 export const COLORS = {
-  primary: "#FF3B30",        // Red (Active Switch/Apple Health)
+  primary: "#EF4343",        // Brand Red
   background: "#121212",     // Dark Background
   surface: "rgba(255, 255, 255, 0.05)", // Glassy for settings list
   surfaceHighlight: "rgba(255, 255, 255, 0.1)",
-  text: "#EAEAEA",   // Primary Text (light grey/white)
-  textSecondary: "rgba(245,245,245,0.5)", // For settings dim text
+  text: "#F5F5F7",           // Primary White
+  textSecondary: "#A1A1AA",  // Zinc-400
   error: "#FF453A",          // Error Red
-  accent: "#FFD700", // Gold for order numbers
-  success: "#22C55E", // Delivered
-  info: "#3B82F6", // Shipped
-  processing: "#EF4343", // Processing red
+  accent: "#FFD700",         // Gold for order numbers
+  success: "#22C55E",        // Delivered
+  info: "#3B82F6",           // Shipped
+  processing: "#EF4343",     // Processing red
   border: "rgba(255,255,255,0.1)",
   shadowRed: "rgba(255, 59, 48, 0.3)",
+  // Gradient Colors
+  goldStart: "#EAB308",      // Yellow-500
+  goldEnd: "#FCD34D",        // Amber-300
   // Brand Colors
   appleHealth: "#FF3B30",
-  garmin: "#0EA5E9", // Sky Blue
-  googleFit: "#3B82F6", // Blue
-  whoop: "#EAB308", // Yellow
-  strava: "#EA580C", // Orange
-  gold: "#FFD700", // Gold accent for mood chips or rewards
-  white: "#FFFFFF",        // Added for Merch Shop badges and highlights
+  garmin: "#0EA5E9",         // Sky Blue
+  googleFit: "#3B82F6",      // Blue
+  whoop: "#EAB308",          // Yellow
+  strava: "#EA580C",         // Orange
+  gold: "#FFD700",           // Gold accent for mood chips or rewards
+  white: "#FFFFFF",          // Added for Merch Shop badges and highlights
   blue: "#3B82F6",
   black: "#000000",
-  danger: "#EF4444", // Red for delete actions
+  danger: "#EF4444",         // Red for delete actions
   disabled: "rgba(255, 255, 255, 0.2)",
-  accentGold: "#FFD700", // Gold for notification icons
-  primaryTint: "rgba(239, 67, 67, 0.1)", // bg-primary/10
-  primaryTintStrong: "rgba(239, 67, 67, 0.2)", // Icon bg
+  accentGold: "#FFD700",     // Gold for notification icons
+  primaryTint: "rgba(239, 67, 67, 0.2)", // Red bg for icons
+  primaryTintStrong: "rgba(239, 67, 67, 0.3)", // Icon bg
   whiteTint: "rgba(255, 255, 255, 0.1)",
   goldTint: "rgba(255, 215, 0, 0.2)",
 };
@@ -50,11 +53,12 @@ export const FONTS = {
 };
 
 export const SIZES = {
-  radius: 12, // settings
-  radiusLg: 12,
+  radius: 12,
+  radiusLg: 16,
   radiusSm: 8,
   radiusFull: 9999,
   iconSize: 24,
+  containerMaxWidth: 768, // Max width for tablet views
 };
 
 export const LAYOUT = {

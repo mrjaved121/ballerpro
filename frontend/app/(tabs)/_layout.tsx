@@ -93,7 +93,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="rehab" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ href: null }} />
       <Tabs.Screen name="shop" options={{ href: null }} />
-      <Tabs.Screen name="README" options={{ href: null }} />
     </Tabs>
   );
 }

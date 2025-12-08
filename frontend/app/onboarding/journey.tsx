@@ -192,14 +192,14 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.l,
-    paddingBottom: SPACING.m,
+    paddingTop: SPACING.xxl,
+    paddingBottom: SPACING.l,
   },
   navRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.m,
+    marginBottom: SPACING.l,
   },
   backText: {
     color: COLORS.textSecondary,
