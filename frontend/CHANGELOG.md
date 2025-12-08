@@ -4,6 +4,42 @@ All major changes, code additions, and organizational work will be tracked here 
 
 ---
 
+## [EXPO SDK 54 DEPENDENCY CONFLICT FIX] (2025-12-08)
+- **Issue:** `npx expo install --fix` failed with ERESOLVE dependency conflict
+- **Root Cause:** npm couldn't resolve circular dependencies between React 19, React Native 0.81, and expo-router v6
+- **Status:** package.json partially updated (main deps ✅, devDeps fixed ✅)
+- **Solution:** Use `npm install --legacy-peer-deps` flag to complete installation
+- **Fixed DevDependencies:**
+  - `@types/react@~18.2.45` → `@types/react@~19.1.10`
+  - `typescript@~5.3.3` → `typescript@~5.9.2`
+- **Documentation Created:**
+  - `FIX_DEPENDENCY_CONFLICT.md` - Detailed explanation and 3 fix options
+  - `QUICK_FIX_NOW.md` - Copy-paste commands to fix immediately
+  - `EXPO_54_UPGRADE_GUIDE.md` - Complete SDK 54 upgrade guide
+  - `UPGRADE_TROUBLESHOOTING.md` - Common issues and solutions
+- **Next Step:** Run `npm install --legacy-peer-deps` to complete upgrade
+
+---
+
+## [EXPO DOCTOR FIXES] (2025-12-08)
+- **Fixed 4 Critical Issues** identified by `npx expo-doctor`
+- **Issue 1 - Missing Images:** Removed references to non-existent icon/splash assets from `app.json`
+- **Issue 2 - Missing Dependencies:** Added 4 critical peer dependencies:
+  - `expo-constants@~16.0.0` (required by expo-router)
+  - `expo-linking@~6.3.0` (required by expo-router)
+  - `react-native-screens@~3.31.0` (required by expo-router)
+  - `expo-font@~12.0.0` (required by @expo/vector-icons)
+- **Issue 3 - Version Conflicts:** Package.json updated to resolve @expo/config-plugins version mismatch
+- **Issue 4 - Outdated Packages:** Updated to Expo SDK 51 compatible versions:
+  - `react-native@0.74.5` (was 0.74.0)
+  - `react-native-safe-area-context@4.10.5` (was 4.10.0)
+  - `typescript@~5.3.3` (was ^5.1.3)
+- **Added Script:** `npm run doctor` for quick health checks
+- **Documentation:** Created `FIXES_APPLIED.md` with detailed explanation and install steps
+- **Next Step:** Run `npm install` to apply all fixes
+
+---
+
 ## [DEBUG/TESTING HUB] (2025-12-08)
 - **Visual Testing Screen Created:** New `app/(tabs)/debug.tsx` with organized list of ALL screens
 - **Categories:** Main Tabs, Tracking & Habits, Community, Nutrition, Merch & Shop, Account, Auth & Onboarding
