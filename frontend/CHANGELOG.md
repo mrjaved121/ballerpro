@@ -4,6 +4,21 @@ All major changes, code additions, and organizational work will be tracked here 
 
 ---
 
+## [DEBUG/TESTING HUB] (2025-12-08)
+- **Visual Testing Screen Created:** New `app/(tabs)/debug.tsx` with organized list of ALL screens
+- **Categories:** Main Tabs, Tracking & Habits, Community, Nutrition, Merch & Shop, Account, Auth & Onboarding
+- **Features:**
+  - One-tap navigation to any screen for visual testing
+  - Screen status indicators (Ready/WIP/Pending)
+  - Screen descriptions and route paths
+  - 28 screens organized for easy testing
+- **Tab Navigation Updated:** Added Debug tab (first position) with bug icon
+- **Hidden Screens:** All non-main-tab screens hidden from bottom nav (accessible via debug or programmatic navigation)
+- **Purpose:** Manual visual testing without Android Studio—works with Expo Go, web preview, or iOS
+- **No linter errors**
+
+---
+
 ## [INTEGRATIONS SCREEN] (2025-12-06)
 - **Theme extended:** Added all brand, error, and highlight tokens for integrations settings in `constants/theme.ts`.
 - **Integration types added:** Created TypeScript type for all attributes in `types/integration.ts`.
