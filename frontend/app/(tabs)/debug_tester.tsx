@@ -17,11 +17,12 @@ const TEST_ROUTES: TestRoute[] = [
   { title: 'Login', route: '/auth/login', icon: 'login', category: 'Auth' },
   { title: 'Register', route: '/auth/register', icon: 'person-add', category: 'Auth' },
   
-  // Onboarding
-  { title: 'Onboarding Step 1', route: '/onboarding/step1', icon: 'looks-one', category: 'Onboarding' },
-  { title: 'Onboarding Step 2', route: '/onboarding/step2', icon: 'looks-two', category: 'Onboarding' },
-  { title: 'Onboarding Step 3', route: '/onboarding/step3', icon: 'looks-3', category: 'Onboarding' },
-  { title: 'Onboarding Step 4', route: '/onboarding/step4', icon: 'looks-4', category: 'Onboarding' },
+  // Onboarding (Updated - 5 Steps)
+  { title: '1. About (Gender)', route: '/onboarding/about', icon: 'looks-one', category: 'Onboarding' },
+  { title: '2. Journey (Goals)', route: '/onboarding/journey', icon: 'looks-two', category: 'Onboarding' },
+  { title: '3. Training Experience', route: '/onboarding/trainingExperience', icon: 'looks-3', category: 'Onboarding' },
+  { title: '4. Injuries', route: '/onboarding/injuries', icon: 'looks-4', category: 'Onboarding' },
+  { title: '5. Main Goal', route: '/onboarding/mainGoal', icon: 'looks-5', category: 'Onboarding' },
   
   // Main Tabs
   { title: 'Habit Tracker', route: '/(tabs)/habit', icon: 'check-circle', category: 'Main' },

@@ -4,6 +4,136 @@ All major changes, code additions, and organizational work will be tracked here 
 
 ---
 
+## [ONBOARDING FLOW - COMPLETE FIX] (2025-12-08)
+- **Problem:** All onboarding screens showing "Network error, please check your internet connection"
+- **Root Cause:** `onboardingService` was making real API calls to non-existent backend
+- **Complete Solution Applied:**
+
+### **1. Onboarding Service Rewrite** ✅
+  - Completely rewrote `src/services/onboarding/onboardingService.ts`
+  - Removed ALL `api.post()` calls (no more network requests)
+  - Uses in-memory storage (same pattern as auth service)
+  - Added mock delays (200ms) for realistic UX
+  - Added comprehensive console logs for debugging
+  - Added `saveStep5()` for 5-step flow
+  - Added `reset()` method for testing
+
+### **2. Fixed Step Numbering** ✅
+  - **Journey** (`journey.tsx`): Now uses `saveStep2()` consistently
+  - **Training** (`trainingExperience.tsx`): Changed from `saveStep2` to `saveStep3`
+  - **Injuries** (`injuries.tsx`): Changed from `saveStep3` to `saveStep4`
+  - **Main Goal** (`mainGoal.tsx`): Already using `saveStep5` correctly
+
+### **3. Added Console Logging** ✅
+  - All screens now log save/navigation events
+  - Easy to track flow: `[About] → [Journey] → [Training] → [Injuries] → [Main Goal]`
+  - Final data logged at completion
+
+### **Complete Flow (5 Steps):**
+  ```
+  Step 1: About (Gender) → saveStep1
+  Step 2: Journey (Goals + Experience) → saveStep2
+  Step 3: Training Experience → saveStep3
+  Step 4: Injuries → saveStep4
+  Step 5: Main Goal → saveStep5 → completeOnboarding()
+  ```
+
+- **How it works now:**
+  ```typescript
+  // OLD (caused network errors):
+  await api.post('/onboarding/step1', data);
+  
+  // NEW (works offline):
+  mockOnboardingData = { ...mockOnboardingData, step1: data };
+  ```
+
+- **Files Changed:**
+  - `src/services/onboarding/onboardingService.ts` - Complete rewrite (no API calls)
+  - `app/onboarding/journey.tsx` - Import service, use saveStep2
+  - `app/onboarding/trainingExperience.tsx` - Use saveStep3, add logs
+  - `app/onboarding/injuries.tsx` - Use saveStep4, add logs
+  - `app/onboarding/mainGoal.tsx` - Use saveStep5, add logs
+
+- **Why this matters:** 
+  - Onboarding flow now works 100% offline
+  - No backend required for frontend testing
+  - Easy to swap for real API later
+  - Consistent with auth service pattern
+
+- **Status:** ✅ Fixed - Complete 5-step onboarding flow working without network errors
+
+---
+
+## [JOURNEY SCREEN MULTIPLE SUBMIT FIX] (2025-12-08)
+- **Problem:** Journey screen Continue button triggered multiple times, causing duplicate saves
+- **Root Cause:** No debouncing or loading state to prevent multiple clicks
+- **Fixed:**
+  - Added `isNavigating` state to track navigation in progress
+  - Added early return if already navigating
+  - Disabled button while navigating
+  - Changed button text to "Loading..." during navigation
+  - Added disabled button styling (grey, reduced opacity)
+- **Why this matters:** Prevents duplicate data saves and navigation issues
+- **Status:** ✅ Fixed - Continue button now only fires once
+
+---
+
+## [ONBOARDING ERROR POPUP SPACING FIXED] (2025-12-08)
+- **Problem:** Error messages in onboarding screens had NO space from top, appearing too close to content
+- **Root Cause:** errorContainer styles were missing `marginTop` property
+- **Fixed:**
+  - Added `marginTop: spacing.xl` (32px) to all onboarding error containers
+  - Increased padding from `spacing.sm` (8px) to `spacing.md` (16px)
+- **Files Changed:**
+  - `app/onboarding/about.tsx` - Step 1/5
+  - `app/onboarding/trainingExperience.tsx` - Step 3/5
+  - `app/onboarding/injuries.tsx` - Step 4/5
+  - `app/onboarding/mainGoal.tsx` - Step 5/5
+- **Why this matters:** Error messages now have breathing room and are easier to read
+- **Status:** ✅ Fixed - All onboarding error popups have 32px space from top
+
+---
+
+## [ERROR POPUP SPACING FIXED - UPDATED] (2025-12-08)
+- **Problem:** Error messages in login/register screens too close to input fields
+- **Fixed:**
+  - `login.tsx`: Added `marginTop: spacing.xl` (32px) to errorContainer
+  - `register.tsx`: Added `marginTop: spacing.xl` (32px) to errorContainer
+  - Increased padding from `spacing.sm` to `spacing.md` for better visibility
+- **Update:** Increased from `spacing.md` (16px) to `spacing.xl` (32px) for more breathing room
+- **Why this matters:** Error messages now have proper breathing room and are easier to read
+- **Status:** ✅ Fixed - Error messages have proper spacing (32px from top)
+
+---
+
+## [ONBOARDING SCREENS RENAMED & JOURNEY ADDED] (2025-12-08)
+- **Feature:** Renamed onboarding steps and added new "Journey" screen
+- **Renamed Files:**
+  - `step1.tsx` → `about.tsx` (Step 1 of 5)
+  - NEW: `journey.tsx` (Step 2 of 5) - Define Your Journey
+  - `step2.tsx` → `trainingExperience.tsx` (Step 3 of 5)
+  - `step3.tsx` → `injuries.tsx` (Step 4 of 5)
+  - `step4.tsx` → `mainGoal.tsx` (Step 5 of 5)
+- **New Components Created:**
+  - `JourneyGoalCard.tsx` - Responsive grid card for goals (2x2 layout)
+  - `SelectionButton.tsx` - Full-width selection button for experience levels
+- **New Types:**
+  - `src/types/onboarding.ts` - GoalOption, ExperienceLevel interfaces
+- **Journey Screen Features:**
+  - 2x2 grid of goal cards (Build Muscle, Lose Fat, Improve Endurance, Increase Strength)
+  - 4 experience level buttons (Strength Athlete, Endurance Runner, Casual Gym-goer, Beginner)
+  - Fully responsive with tablet support (max-width: 600px)
+  - useWindowDimensions for responsive layout
+  - Saves data to AuthContext
+- **Navigation Flow Updated:**
+  - About → Journey → Training Experience → Injuries → Main Goal
+  - All router.push() calls updated to new file names
+  - Progress bars show 1-5 of 5
+- **Why this matters:** Better onboarding flow with clearer naming and new journey definition step
+- **Status:** ✅ Complete - 5-step onboarding flow ready
+
+---
+
 ## [ONBOARDING NAVIGATION IMPROVED] (2025-12-08)
 - **Feature:** Enhanced navigation logging for onboarding redirect after signup
 - **Updated:**

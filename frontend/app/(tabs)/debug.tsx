@@ -49,17 +49,18 @@ const SCREEN_CATEGORIES = {
   'Account & Settings': [
     { name: 'Settings', route: '/(tabs)/settings', icon: 'settings', description: 'App preferences & account', status: 'ready' },
     { name: 'Notifications', route: '/(tabs)/notifications', icon: 'notifications', description: 'Notification inbox', status: 'ready' },
-    { name: 'Integrations', route: '/(tabs)/integrations', icon: 'link', description: 'Connect fitness apps', status: 'ready' },
-    { name: 'Go Premium', route: '/(tabs)/premium', icon: 'star', description: 'Subscription plans', status: 'ready' },
+    { name: 'Wearables & Integrations', route: '/(tabs)/wearables', icon: 'watch', description: 'Connect fitness apps', status: 'ready' },
+    { name: 'Subscription', route: '/(tabs)/subscription', icon: 'star', description: 'Subscription plans', status: 'ready' },
     { name: 'Referral Center', route: '/(tabs)/referral', icon: 'card-giftcard', description: 'Invite friends & earn', status: 'ready' },
   ],
   'Auth & Onboarding': [
     { name: 'Login', route: '/auth/login', icon: 'login', description: 'User login screen', status: 'ready' },
     { name: 'Register', route: '/auth/register', icon: 'person-add', description: 'Sign up screen', status: 'ready' },
-    { name: 'Onboarding Step 1', route: '/onboarding/step1', icon: 'looks-one', description: 'First onboarding step', status: 'ready' },
-    { name: 'Onboarding Step 2', route: '/onboarding/step2', icon: 'looks-two', description: 'Second onboarding step', status: 'ready' },
-    { name: 'Onboarding Step 3', route: '/onboarding/step3', icon: 'looks-3', description: 'Third onboarding step', status: 'ready' },
-    { name: 'Onboarding Step 4', route: '/onboarding/step4', icon: 'looks-4', description: 'Fourth onboarding step', status: 'ready' },
+    { name: '1. About (Gender)', route: '/onboarding/about', icon: 'looks-one', description: 'Gender selection', status: 'ready' },
+    { name: '2. Journey (Goals)', route: '/onboarding/journey', icon: 'looks-two', description: 'Define goals & experience', status: 'ready' },
+    { name: '3. Training Experience', route: '/onboarding/trainingExperience', icon: 'looks-3', description: 'Training level', status: 'ready' },
+    { name: '4. Injuries', route: '/onboarding/injuries', icon: 'looks-4', description: 'Injury tracking', status: 'ready' },
+    { name: '5. Main Goal', route: '/onboarding/mainGoal', icon: 'looks-5', description: 'Final goal selection', status: 'ready' },
   ],
 };
 

@@ -39,7 +39,7 @@ export default function Index() {
       // Logged in but onboarding not complete → redirect to onboarding
       if (!inOnboardingGroup) {
         console.log('[Index] 🎓 Redirecting to onboarding (user needs onboarding)');
-        router.replace('/onboarding/step1');
+        router.replace('/onboarding/about');
       }
     } else if (user && user.onboardingCompleted) {
       // Logged in and onboarding complete → redirect to main app

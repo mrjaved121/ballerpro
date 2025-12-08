@@ -10,24 +10,47 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
+import { GoalCard } from '../../src/components/ui/GoalCard';
 import { Button } from '../../src/components/Button';
 import { onboardingService } from '../../src/services/onboarding/onboardingService';
+import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
-import { SIZES } from '@/constants/theme';
 
-type Gender = 'male' | 'female' | 'other';
+type GoalType = 'muscle-gain' | 'fat-loss' | 'maintenance';
 
-export default function OnboardingStep1() {
+const GOAL_OPTIONS = [
+  {
+    id: 'muscle-gain' as GoalType,
+    title: 'Muscle Gain',
+    description: 'Build lean mass and increase strength.',
+    icon: 'fitness_center',
+  },
+  {
+    id: 'fat-loss' as GoalType,
+    title: 'Fat Loss',
+    description: 'Reduce body fat while preserving muscle.',
+    icon: 'local_fire_department',
+  },
+  {
+    id: 'maintenance' as GoalType,
+    title: 'Maintenance',
+    description: 'Maintain your current physique and fitness level.',
+    icon: 'balance',
+  },
+];
+
+export default function OnboardingStep4() {
   const router = useRouter();
-  const [selectedGender, setSelectedGender] = useState<Gender | null>(null);
+  const { completeOnboarding, updateOnboardingData } = useAuth();
+  const [selectedGoal, setSelectedGoal] = useState<GoalType | null>('fat-loss');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = async () => {
-    if (!selectedGender) {
-      setError('Please select your gender');
+    if (!selectedGoal) {
+      setError('Please select a goal');
       return;
     }
 
@@ -35,13 +58,23 @@ export default function OnboardingStep1() {
       setIsLoading(true);
       setError(null);
       
-      await onboardingService.saveStep1({
-        gender: selectedGender,
+      console.log('[Main Goal] Saving step 5...');
+      
+      // Save step 5 to onboarding service
+      await onboardingService.saveStep5({
+        goal: selectedGoal,
       });
-
-      router.push('/onboarding/step2');
+      
+      // Save goal to auth context
+      await updateOnboardingData({ goals: [selectedGoal] });
+      
+      // Mark onboarding as complete
+      await completeOnboarding();
+      
+      // Navigation handled by index.tsx
+      console.log('[Main Goal] ✅ Onboarding Completed! 🎉');
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to save. Please try again.';
+      const errorMessage = err.message || 'Failed to complete. Please try again.';
       setError(errorMessage);
       Alert.alert('Error', errorMessage);
     } finally {
@@ -59,11 +92,11 @@ export default function OnboardingStep1() {
         <TouchableOpacity onPress={handleBack}>
           <Text style={styles.backButton}>Back</Text>
         </TouchableOpacity>
-        <Text style={styles.stepText}>Step 1 of 5</Text>
+        <Text style={styles.stepText}>Step 5 of 5</Text>
       </View>
 
       <View style={styles.progressContainer}>
-        <ProgressBar currentStep={1} totalSteps={5} />
+        <ProgressBar currentStep={5} totalSteps={5} />
       </View>
 
       <ScrollView
@@ -72,31 +105,19 @@ export default function OnboardingStep1() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <View style={styles.headerSection}>
-            <Text style={styles.title}>About You</Text>
-            <Text style={styles.subtitle}>Tell us a bit about yourself.</Text>
-          </View>
+          <Text style={styles.title}>What's Your Main{'\n'}Goal?</Text>
 
-          <View style={styles.optionsContainer}>
-            {(['male', 'female', 'other'] as Gender[]).map((gender) => (
-              <TouchableOpacity
-                key={gender}
-                style={[
-                  styles.optionButton,
-                  selectedGender === gender && styles.optionButtonSelected,
-                ]}
-                onPress={() => setSelectedGender(gender)}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.optionText,
-                    selectedGender === gender && styles.optionTextSelected,
-                  ]}
-                >
-                  {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                </Text>
-              </TouchableOpacity>
+          <View style={styles.goalsContainer}>
+            {GOAL_OPTIONS.map((option) => (
+              <GoalCard
+                key={option.id}
+                id={option.id}
+                title={option.title}
+                description={option.description}
+                icon={option.icon}
+                isSelected={selectedGoal === option.id}
+                onSelect={(id) => setSelectedGoal(id as GoalType)}
+              />
             ))}
           </View>
 
@@ -108,14 +129,13 @@ export default function OnboardingStep1() {
         </View>
       </ScrollView>
 
-      {/* Footer with Continue Button */}
       <View style={styles.footer}>
         <Button
-          title={isLoading ? 'Saving...' : 'Continue'}
+          title={isLoading ? 'Completing...' : 'Continue'}
           onPress={handleContinue}
           variant="primary"
           style={styles.continueButton}
-          disabled={isLoading}
+          disabled={!selectedGoal || isLoading}
           loading={isLoading}
         />
       </View>
@@ -161,50 +181,16 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
   },
-  headerSection: {
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
   title: {
     fontSize: typography.fontSize['3xl'],
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
     lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
     letterSpacing: -0.5,
-    marginBottom: spacing.sm,
-    textAlign: 'center',
+    marginBottom: spacing.xl,
   },
-  subtitle: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.normal,
-    color: colors.textSecondary,
-    lineHeight: typography.fontSize.md * typography.lineHeight.normal,
-    textAlign: 'center',
-  },
-  optionsContainer: {
+  goalsContainer: {
     gap: spacing.md,
-  },
-  optionButton: {
-    height: 64,
-    borderRadius: SIZES.radiusLg,
-    borderWidth: 2,
-    borderColor: colors.inputBg,
-    backgroundColor: colors.inputBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  optionButtonSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.inputBg,
-  },
-  optionText: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textSecondary,
-    textTransform: 'capitalize',
-  },
-  optionTextSelected: {
-    color: colors.text,
   },
   footer: {
     paddingHorizontal: spacing.lg,
@@ -214,7 +200,7 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     width: '100%',
-    borderRadius: 9999, // Full rounded
+    borderRadius: 9999,
     height: 56,
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -223,8 +209,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   errorContainer: {
+    marginTop: spacing.xl,
     marginBottom: spacing.md,
-    padding: spacing.sm,
+    padding: spacing.md,
     backgroundColor: `${colors.error}20`,
     borderRadius: spacing.sm,
   },
@@ -234,3 +221,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+

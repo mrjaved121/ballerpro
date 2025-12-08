@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,67 +7,36 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
-  TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
-import { InjuryChip } from '../../src/components/ui/InjuryChip';
+import { SelectionCard } from '../../src/components/ui/SelectionCard';
 import { Button } from '../../src/components/Button';
 import { onboardingService } from '../../src/services/onboarding/onboardingService';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
-import { SIZES } from '@/constants/theme';
 
-type InjuryType = 'Knees' | 'Shoulders' | 'Lower Back' | 'Hips' | 'Ankles' | 'Wrists' | 'Neck';
+type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 
-const INJURY_TYPES: InjuryType[] = [
-  'Knees',
-  'Shoulders',
-  'Lower Back',
-  'Hips',
-  'Ankles',
-  'Wrists',
-  'Neck',
-];
-
-export default function OnboardingStep3() {
+export default function OnboardingStep2() {
   const router = useRouter();
-  const [selectedInjuries, setSelectedInjuries] = useState<Set<InjuryType>>(
-    new Set(['Knees', 'Hips'])
-  );
-  const [otherDetails, setOtherDetails] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState<ExperienceLevel>('intermediate');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const toggleInjury = useCallback((injury: InjuryType) => {
-    setSelectedInjuries((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(injury)) {
-        newSet.delete(injury);
-      } else {
-        newSet.add(injury);
-      }
-      return newSet;
-    });
-  }, []);
-
-  const clearAllInjuries = useCallback(() => {
-    setSelectedInjuries(new Set());
-    setOtherDetails('');
-  }, []);
 
   const handleContinue = async () => {
     try {
       setIsLoading(true);
       setError(null);
       
+      console.log('[Training Experience] Saving step 3...');
       await onboardingService.saveStep3({
-        injuries: Array.from(selectedInjuries),
-        otherDetails: otherDetails.trim(),
+        experienceLevel: selectedLevel,
       });
+      console.log('[Training Experience] ✅ Saved, navigating to Injuries');
       
-      router.push('/onboarding/step4');
+      router.push('/onboarding/injuries');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';
       setError(errorMessage);
@@ -101,47 +70,35 @@ export default function OnboardingStep3() {
       >
         <View style={styles.content}>
           <View style={styles.headerSection}>
-            <Text style={styles.title}>Any Injuries We Should Know About?</Text>
+            <Text style={styles.title}>What's Your Training Experience?</Text>
             <Text style={styles.subtitle}>
-              This helps us tailor your workout plan to keep you safe and effective.
+              This helps us personalize your workout plan.
             </Text>
           </View>
 
-          {/* Injury Chips Grid */}
-          <View style={styles.chipsContainer}>
-            {INJURY_TYPES.map((injury) => (
-              <InjuryChip
-                key={injury}
-                label={injury}
-                selected={selectedInjuries.has(injury)}
-                onClick={() => toggleInjury(injury)}
-              />
-            ))}
-          </View>
-
-          {/* Text Area Section */}
-          <View style={styles.textAreaSection}>
-            <Text style={styles.label}>Other injuries or details</Text>
-            <TextInput
-              style={styles.textArea}
-              value={otherDetails}
-              onChangeText={setOtherDetails}
-              placeholder="e.g. Left ACL tear, 2 years ago"
-              placeholderTextColor={colors.textSecondary}
-              multiline
-              numberOfLines={6}
-              textAlignVertical="top"
+          <View style={styles.cardsContainer}>
+            <SelectionCard
+              title="Beginner"
+              description="Just starting out or returning after a long break."
+              iconName="footprint"
+              isSelected={selectedLevel === 'beginner'}
+              onPress={() => setSelectedLevel('beginner')}
+            />
+            <SelectionCard
+              title="Intermediate"
+              description="You've been training consistently for a while."
+              iconName="fitness_center"
+              isSelected={selectedLevel === 'intermediate'}
+              onPress={() => setSelectedLevel('intermediate')}
+            />
+            <SelectionCard
+              title="Advanced"
+              description="You're experienced and follow a structured program."
+              iconName="weight"
+              isSelected={selectedLevel === 'advanced'}
+              onPress={() => setSelectedLevel('advanced')}
             />
           </View>
-
-          {/* I have no injuries button */}
-          <TouchableOpacity
-            style={styles.noInjuriesButton}
-            onPress={clearAllInjuries}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.noInjuriesText}>I have no injuries</Text>
-          </TouchableOpacity>
 
           {error && (
             <View style={styles.errorContainer}>
@@ -204,6 +161,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   headerSection: {
+    alignItems: 'center',
     marginBottom: spacing.xl,
   },
   title: {
@@ -213,54 +171,19 @@ const styles = StyleSheet.create({
     lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
     letterSpacing: -0.5,
     marginBottom: spacing.sm,
+    textAlign: 'center',
+    paddingHorizontal: spacing.sm,
   },
   subtitle: {
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.normal,
     color: colors.textSecondary,
     lineHeight: typography.fontSize.md * typography.lineHeight.normal,
+    textAlign: 'center',
+    paddingHorizontal: spacing.sm,
   },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  cardsContainer: {
     gap: spacing.md,
-    marginBottom: spacing.xl,
-  },
-  textAreaSection: {
-    marginBottom: spacing.lg,
-  },
-  label: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  textArea: {
-    width: '100%',
-    minHeight: 160,
-    padding: spacing.md,
-    borderRadius: SIZES.radiusLg,
-    backgroundColor: colors.inputBg,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    color: colors.text,
-    fontSize: typography.fontSize.md,
-    lineHeight: typography.fontSize.md * typography.lineHeight.relaxed,
-  },
-  noInjuriesButton: {
-    height: 56,
-    borderRadius: SIZES.radiusLg,
-    borderWidth: 2,
-    borderColor: colors.borderLight,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.md,
-  },
-  noInjuriesText: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text,
   },
   footer: {
     paddingHorizontal: spacing.lg,
@@ -279,8 +202,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   errorContainer: {
+    marginTop: spacing.xl,
     marginBottom: spacing.md,
-    padding: spacing.sm,
+    padding: spacing.md,
     backgroundColor: `${colors.error}20`,
     borderRadius: spacing.sm,
   },

@@ -339,6 +339,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   errorContainer: {
+    marginTop: spacing.md,
     marginBottom: spacing.md,
     padding: spacing.sm,
     backgroundColor: `${colors.error}20`,
