@@ -1,10 +1,9 @@
-import { Request, Response } from 'express';
-import { User } from '../models/User';
-import { hashPassword, comparePassword } from '../utils/password';
-import { generateToken, generateRefreshToken } from '../utils/jwt';
+import { User } from '../models/User.js';
+import { hashPassword, comparePassword } from '../utils/password.js';
+import { generateToken, generateRefreshToken } from '../utils/jwt.js';
 
 // Register new user
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
@@ -48,13 +47,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           email: user.email,
           name: user.name,
           avatar: user.avatar,
+          createdAt: user.createdAt,
           isEmailVerified: user.isEmailVerified,
         },
         token,
         refreshToken,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({
       success: false,
@@ -65,7 +65,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Login user
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -115,7 +115,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         refreshToken,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
@@ -126,7 +126,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Get current user
-export const getMe = async (req: Request, res: Response): Promise<void> => {
+export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user?.userId);
     if (!user) {
@@ -151,7 +151,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
         },
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get me error:', error);
     res.status(500).json({
       success: false,
@@ -162,7 +162,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Refresh token
-export const refreshToken = async (req: Request, res: Response): Promise<void> => {
+export const refreshToken = async (req, res) => {
   try {
     const { refreshToken: refreshTokenValue } = req.body;
 
@@ -175,7 +175,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     }
 
     // Verify refresh token
-    const { verifyToken } = await import('../utils/jwt');
+    const { verifyToken } = await import('../utils/jwt.js');
     const decoded = verifyToken(refreshTokenValue);
 
     // Generate new tokens
@@ -196,7 +196,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
         refreshToken: newRefreshToken,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Refresh token error:', error);
     res.status(401).json({
       success: false,
@@ -206,7 +206,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
 };
 
 // Logout (client-side token removal, but we can track here if needed)
-export const logout = async (req: Request, res: Response): Promise<void> => {
+export const logout = async (req, res) => {
   try {
     // In a more advanced implementation, you might want to blacklist tokens
     // For now, we'll just return success - client should remove tokens
@@ -214,7 +214,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
       success: true,
       message: 'Logged out successfully',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({
       success: false,
@@ -224,7 +224,7 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Forgot password (placeholder - implement email sending later)
-export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -244,7 +244,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
       success: true,
       message: 'If an account exists with this email, a password reset link has been sent',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({
       success: false,
@@ -254,7 +254,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 };
 
 // Reset password (placeholder - implement token verification later)
-export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+export const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
 
@@ -264,7 +264,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       success: true,
       message: 'Password reset functionality will be implemented soon',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Reset password error:', error);
     res.status(500).json({
       success: false,
@@ -272,3 +272,4 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     });
   }
 };
+

@@ -5,15 +5,15 @@ import {
   saveStep3,
   saveStep4,
   getOnboardingStatus,
-} from '../controllers/onboardingController';
-import { authenticate } from '../middleware/auth';
-import { validate } from '../utils/validation';
+} from '../controllers/onboardingController.js';
+import { authenticate } from '../middleware/auth.js';
+import { validate } from '../utils/validation.js';
 import {
   step1Schema,
   step2Schema,
   step3Schema,
   step4Schema,
-} from '../utils/onboardingValidation';
+} from '../utils/onboardingValidation.js';
 
 const router = Router();
 

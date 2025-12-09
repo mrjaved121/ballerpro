@@ -1,8 +1,7 @@
-import { Request, Response } from 'express';
-import { User } from '../models/User';
+import { User } from '../models/User.js';
 
 // Get user profile
-export const getProfile = async (req: Request, res: Response): Promise<void> => {
+export const getProfile = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -37,7 +36,7 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
         },
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({
       success: false,
@@ -48,7 +47,7 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 };
 
 // Update user profile
-export const updateProfile = async (req: Request, res: Response): Promise<void> => {
+export const updateProfile = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -60,7 +59,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     }
 
     const { name, avatar } = req.body;
-    const updateData: any = {};
+    const updateData = {};
 
     if (name !== undefined) updateData.name = name;
     if (avatar !== undefined) updateData.avatar = avatar;
@@ -95,7 +94,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
         },
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({
       success: false,

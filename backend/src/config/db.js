@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { config } from './env';
+import { config } from './env.js';
 
-export const connectDB = async (): Promise<void> => {
+export const connectDB = async () => {
   try {
-    const options: mongoose.ConnectOptions = {
+    const options = {
       // Connection pool options
       maxPoolSize: 10, // Maintain up to 10 socket connections
       minPoolSize: 5, // Maintain at least 5 socket connections
@@ -46,7 +46,7 @@ export const connectDB = async (): Promise<void> => {
 };
 
 // Graceful shutdown
-export const disconnectDB = async (): Promise<void> => {
+export const disconnectDB = async () => {
   try {
     await mongoose.connection.close();
     console.log('MongoDB connection closed');

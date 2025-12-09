@@ -46,8 +46,8 @@ export const resetPasswordSchema = z.object({
 });
 
 // Validation middleware
-export const validate = (schema: z.ZodSchema) => {
-  return (req: any, res: any, next: any) => {
+export const validate = (schema) => {
+  return (req, res, next) => {
     try {
       schema.parse(req.body);
       next();
@@ -67,3 +67,4 @@ export const validate = (schema: z.ZodSchema) => {
     }
   };
 };
+

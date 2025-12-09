@@ -1,20 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { verifyToken, TokenPayload } from '../utils/jwt';
+import { verifyToken } from '../utils/jwt.js';
 
-// Extend Express Request to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user?: TokenPayload;
-    }
-  }
-}
-
-export const authenticate = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const authenticate = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -38,3 +24,4 @@ export const authenticate = (
     });
   }
 };
+

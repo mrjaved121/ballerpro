@@ -1,8 +1,7 @@
-import { Request, Response } from 'express';
-import { User } from '../models/User';
+import { User } from '../models/User.js';
 
 // Save Step 1 data
-export const saveStep1 = async (req: Request, res: Response): Promise<void> => {
+export const saveStep1 = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -40,7 +39,7 @@ export const saveStep1 = async (req: Request, res: Response): Promise<void> => {
         onboarding: user.onboarding,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Save step 1 error:', error);
     res.status(500).json({
       success: false,
@@ -51,7 +50,7 @@ export const saveStep1 = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Save Step 2 data
-export const saveStep2 = async (req: Request, res: Response): Promise<void> => {
+export const saveStep2 = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -89,7 +88,7 @@ export const saveStep2 = async (req: Request, res: Response): Promise<void> => {
         onboarding: user.onboarding,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Save step 2 error:', error);
     res.status(500).json({
       success: false,
@@ -100,7 +99,7 @@ export const saveStep2 = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Save Step 3 data
-export const saveStep3 = async (req: Request, res: Response): Promise<void> => {
+export const saveStep3 = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -138,7 +137,7 @@ export const saveStep3 = async (req: Request, res: Response): Promise<void> => {
         onboarding: user.onboarding,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Save step 3 error:', error);
     res.status(500).json({
       success: false,
@@ -149,7 +148,7 @@ export const saveStep3 = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Save Step 4 data and mark onboarding as complete
-export const saveStep4 = async (req: Request, res: Response): Promise<void> => {
+export const saveStep4 = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -189,7 +188,7 @@ export const saveStep4 = async (req: Request, res: Response): Promise<void> => {
         onboarding: user.onboarding,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Save step 4 error:', error);
     res.status(500).json({
       success: false,
@@ -200,7 +199,7 @@ export const saveStep4 = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Get onboarding status
-export const getOnboardingStatus = async (req: Request, res: Response): Promise<void> => {
+export const getOnboardingStatus = async (req, res) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -227,7 +226,7 @@ export const getOnboardingStatus = async (req: Request, res: Response): Promise<
         onboarding: user.onboarding,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Get onboarding status error:', error);
     res.status(500).json({
       success: false,

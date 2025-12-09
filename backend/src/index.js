@@ -4,11 +4,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { config } from './config/env';
-import { connectDB } from './config/db';
-import authRoutes from './routes/authRoutes';
-import onboardingRoutes from './routes/onboardingRoutes';
-import userRoutes from './routes/userRoutes';
+import { config } from './config/env.js';
+import { connectDB } from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
+import onboardingRoutes from './routes/onboardingRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 
@@ -47,3 +47,4 @@ const startServer = async () => {
 };
 
 startServer();
+

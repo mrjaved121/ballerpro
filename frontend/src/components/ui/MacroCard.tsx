@@ -1,73 +1,68 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
-import { SIZES } from '@/constants/theme';
-import { typography } from '../../theme/typography';
+import { COLORS, FONTS, SIZES, SPACING } from '@/constants/theme';
 
 interface MacroCardProps {
-  label: string;
+  name: string;
   current: number;
-  total: number;
+  target: number;
 }
 
-export const MacroCard: React.FC<MacroCardProps> = ({
-  label,
-  current,
-  total,
-}) => {
-  const progress = Math.min(100, (current / total) * 100);
+export default function MacroCard({ name, current, target }: MacroCardProps) {
+  const progress = Math.min(current / target, 1); // Cap at 100%
+  const percentage = Math.round(progress * 100);
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.valuesContainer}>
-        <Text style={styles.currentValue}>{current}g</Text>
-        <Text style={styles.totalValue}> / {total}g</Text>
-      </View>
-      <View style={styles.progressBar}>
-        <View style={[styles.progressFill, { width: `${progress}%` }]} />
+    <View style={styles.container}>
+      <Text style={styles.macroName}>{name}</Text>
+      <Text style={styles.macroValues}>
+        {current}g / {target}g
+      </Text>
+      
+      {/* Progress Bar */}
+      <View style={styles.progressBarBackground}>
+        <View 
+          style={[
+            styles.progressBarFill, 
+            { width: `${percentage}%` }
+          ]} 
+        />
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  card: {
+  container: {
+    backgroundColor: COLORS.surface,
+    borderRadius: SIZES.radius,
+    padding: SPACING.m,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     flex: 1,
-    backgroundColor: colors.inputBg,
-    borderRadius: SIZES.radiusLg,
-    padding: spacing.md,
-    gap: spacing.sm,
+    minWidth: 100,
   },
-  label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.text,
+  macroName: {
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
   },
-  valuesContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+  macroValues: {
+    fontSize: 18,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: SPACING.s,
   },
-  currentValue: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-  },
-  totalValue: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-  },
-  progressBar: {
-    width: '100%',
+  progressBarBackground: {
     height: 4,
-    backgroundColor: colors.inputBg,
-    borderRadius: 2,
+    backgroundColor: COLORS.surfaceHighlight,
+    borderRadius: SIZES.radiusFull,
     overflow: 'hidden',
   },
-  progressFill: {
+  progressBarFill: {
     height: '100%',
-    backgroundColor: colors.primary,
-    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    borderRadius: SIZES.radiusFull,
   },
 });

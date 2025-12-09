@@ -14,3 +14,6 @@ export const STORAGE_KEYS = {
   ONBOARDING_COMPLETE: '@ballerpro:onboarding_complete',
 } as const;
 
+// Re-export nutrition constants
+export * from './nutrition';
+

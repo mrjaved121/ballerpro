@@ -1,80 +1,85 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
-import { SIZES } from '@/constants/theme';
-import { typography } from '../../theme/typography';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { COLORS, FONTS, SIZES, SPACING } from '@/constants/theme';
 
 interface MealItemProps {
-  meal: {
-    id: string;
-    name: string;
-    description: string;
-    calories: number;
-    icon?: string;
-  };
+  icon: string;
+  mealName: string;
+  description: string;
+  calories: number;
+  onPress?: () => void;
 }
 
-const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
-  wb_sunny: 'sunny',
-  lunch_dining: 'restaurant',
-  dinner_dining: 'restaurant',
-  default: 'restaurant',
-};
-
-export const MealItem: React.FC<MealItemProps> = ({ meal }) => {
-  const iconName = meal.icon
-    ? iconMap[meal.icon] || 'restaurant'
-    : 'restaurant';
-
+export default function MealItem({ 
+  icon, 
+  mealName, 
+  description, 
+  calories,
+  onPress 
+}: MealItemProps) {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity 
+      style={styles.container} 
+      activeOpacity={0.7}
+      onPress={onPress}
+    >
+      {/* Icon Circle */}
       <View style={styles.iconContainer}>
-        <Ionicons name={iconName} size={24} color={colors.accent} />
+        <Text style={styles.icon}>{icon}</Text>
       </View>
-      <View style={styles.content}>
-        <Text style={styles.name}>{meal.name}</Text>
-        <Text style={styles.description}>{meal.description}</Text>
+
+      {/* Meal Info */}
+      <View style={styles.mealInfo}>
+        <Text style={styles.mealName}>{mealName}</Text>
+        <Text style={styles.description}>{description}</Text>
       </View>
-      <Text style={styles.calories}>{meal.calories} kcal</Text>
-    </View>
+
+      {/* Calories */}
+      <Text style={styles.calories}>{calories} kcal</Text>
+    </TouchableOpacity>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.inputBg,
-    borderRadius: SIZES.radiusLg,
-    padding: spacing.md,
-    gap: spacing.md,
+    backgroundColor: COLORS.surface,
+    borderRadius: SIZES.radius,
+    padding: SPACING.m,
+    marginBottom: SPACING.m,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   iconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: `${colors.primary}20`,
-    alignItems: 'center',
+    borderRadius: SIZES.radius,
+    backgroundColor: COLORS.surfaceHighlight,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.m,
   },
-  content: {
+  icon: {
+    fontSize: 24,
+  },
+  mealInfo: {
     flex: 1,
   },
-  name: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text,
-    marginBottom: spacing.xs / 2,
+  mealName: {
+    fontSize: 16,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: 2,
   },
   description: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
+    fontSize: 14,
+    fontFamily: FONTS.regular,
+    color: COLORS.textSecondary,
   },
   calories: {
-    fontSize: typography.fontSize.md,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.text,
+    fontSize: 16,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
   },
 });
