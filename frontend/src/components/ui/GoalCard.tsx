@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
-    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
+    lineHeight: 20,
   },
   descriptionSelected: {
     color: colors.textSecondary,

@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize['3xl'],
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
-    lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
+    lineHeight: 36,
     letterSpacing: -0.5,
     marginBottom: spacing.sm,
   },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.normal,
     color: colors.textSecondary,
-    lineHeight: typography.fontSize.md * typography.lineHeight.normal,
+    lineHeight: 24,
   },
   chipsContainer: {
     flexDirection: 'row',
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     borderColor: colors.borderLight,
     color: colors.text,
     fontSize: typography.fontSize.md,
-    lineHeight: typography.fontSize.md * typography.lineHeight.relaxed,
+    lineHeight: 26,
   },
   noInjuriesButton: {
     height: 56,

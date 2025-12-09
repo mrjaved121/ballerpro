@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'center',
     letterSpacing: -0.5,
-    lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
+    lineHeight: 36,
     marginBottom: spacing.xl,
   },
   inputsContainer: {

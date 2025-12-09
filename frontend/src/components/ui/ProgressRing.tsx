@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize['4xl'],
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
-    lineHeight: typography.fontSize['4xl'] * typography.lineHeight.tight,
+    lineHeight: 40,
   },
   remainingLabel: {
     fontSize: typography.fontSize.sm,

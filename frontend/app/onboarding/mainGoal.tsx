@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize['3xl'],
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
-    lineHeight: typography.fontSize['3xl'] * typography.lineHeight.tight,
+    lineHeight: 36,
     letterSpacing: -0.5,
     marginBottom: spacing.xl,
   },

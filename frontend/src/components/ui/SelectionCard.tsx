@@ -1,9 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
-import { SIZES } from '@/constants/theme';
-import { typography } from '../../theme/typography';
+import { COLORS, SPACING, SIZES, FONTS } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 
 interface SelectionCardProps {
@@ -40,7 +37,7 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
           <Ionicons
             name={icon}
             size={24}
-            color={isSelected ? colors.accent : colors.textSecondary}
+            color={isSelected ? COLORS.gold : COLORS.textSecondary}
           />
         </View>
         <View style={styles.textContainer}>
@@ -59,50 +56,51 @@ export const SelectionCard: React.FC<SelectionCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    padding: spacing.lg,
-    borderRadius: SIZES.radiusLg,
-    backgroundColor: colors.inputBg,
+    padding: SPACING.l,
+    borderRadius: SIZES.radius,
+    backgroundColor: COLORS.surface,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   cardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.inputBg,
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.surface,
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: SPACING.m,
   },
   iconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: `${colors.accent}20`,
+    backgroundColor: COLORS.surfaceHighlight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconContainerSelected: {
-    backgroundColor: `${colors.accent}33`,
+    backgroundColor: COLORS.surfaceHighlight,
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
-    marginBottom: spacing.xs,
+    fontSize: 18,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
   },
   titleSelected: {
-    color: colors.text,
+    color: COLORS.text,
   },
   description: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-    lineHeight: typography.fontSize.sm * typography.lineHeight.normal,
+    fontSize: 14,
+    fontFamily: FONTS.regular,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
   },
   descriptionSelected: {
-    color: colors.textSecondary,
+    color: COLORS.textSecondary,
   },
 });
