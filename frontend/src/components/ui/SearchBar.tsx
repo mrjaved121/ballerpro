@@ -43,8 +43,6 @@ const styles = StyleSheet.create({
     height: 48,
     backgroundColor: COLORS.surface,
     borderRadius: SIZES.radius,
-    marginHorizontal: SPACING.l,
-    marginBottom: SPACING.m,
     overflow: 'hidden',
   },
   iconContainer: {
@@ -57,7 +55,11 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     fontFamily: FONTS.regular,
     fontSize: 16,
-    paddingRight: SPACING.m,
+    paddingRight: SPACING.xs,
+    paddingLeft: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+    textAlignVertical: 'center',
   },
   filterButton: {
     width: 48,

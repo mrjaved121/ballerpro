@@ -5,9 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { GoalCard } from '../../src/components/ui/GoalCard';

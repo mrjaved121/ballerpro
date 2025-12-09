@@ -1,9 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
-import { SIZES } from '@/constants/theme';
-import { typography } from '../../theme/typography';
+import { COLORS, SPACING, SIZES, FONTS } from '@/constants/theme';
 
 interface CategoryChipProps {
   label: string;
@@ -20,7 +17,7 @@ export const CategoryChip: React.FC<CategoryChipProps> = ({
     <TouchableOpacity
       style={[styles.chip, selected && styles.chipSelected]}
       onPress={onPress}
-      activeOpacity={0.8}
+      activeOpacity={0.7}
     >
       <Text style={[styles.label, selected && styles.labelSelected]}>
         {label}
@@ -31,24 +28,29 @@ export const CategoryChip: React.FC<CategoryChipProps> = ({
 
 const styles = StyleSheet.create({
   chip: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    borderRadius: SIZES.radiusFull,
-    backgroundColor: colors.surfaceLight,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 24,
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: COLORS.border,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   chipSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   label: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textSecondary,
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+    lineHeight: 16,
   },
   labelSelected: {
-    color: colors.text,
-    fontWeight: typography.fontWeight.semibold,
+    color: COLORS.white,
+    fontFamily: FONTS.bold,
   },
 });
+

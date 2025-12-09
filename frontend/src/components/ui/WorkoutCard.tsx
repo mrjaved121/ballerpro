@@ -1,9 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { colors } from '../../theme/colors';
-import { spacing } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
-import { SIZES } from '@/constants/theme';
+import { COLORS, SPACING, SIZES, FONTS } from '@/constants/theme';
 import { Button } from '../Button';
 import { Workout } from '../../constants/workouts';
 
@@ -67,10 +64,10 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onStart }) =>
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.inputBg,
-    borderRadius: SIZES.radiusLg,
+    backgroundColor: COLORS.surface,
+    borderRadius: SIZES.radius,
     overflow: 'hidden',
-    marginBottom: spacing.lg,
+    marginBottom: SPACING.l,
   },
   imageContainer: {
     width: '100%',
@@ -80,64 +77,65 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: '100%',
     height: '100%',
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: COLORS.surfaceHighlight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   imagePlaceholderText: {
-    color: colors.textSecondary,
-    fontSize: typography.fontSize.lg,
+    color: COLORS.textSecondary,
+    fontSize: 18,
+    fontFamily: FONTS.medium,
   },
   tagContainer: {
     position: 'absolute',
-    top: spacing.md,
-    right: spacing.md,
-    gap: spacing.xs,
+    top: SPACING.m,
+    right: SPACING.m,
+    gap: SPACING.xs,
   },
   tag: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: SIZES.radiusSm,
+    paddingHorizontal: SPACING.s,
+    paddingVertical: SPACING.xs,
+    borderRadius: SIZES.radius,
   },
   tagNew: {
-    backgroundColor: colors.accent,
+    backgroundColor: COLORS.primary,
   },
   tagPopular: {
-    backgroundColor: colors.accent,
+    backgroundColor: COLORS.gold,
   },
   tagText: {
-    fontSize: typography.fontSize.xs,
-    fontWeight: typography.fontWeight.bold,
-    color: '#000000',
+    fontSize: 12,
+    fontFamily: FONTS.bold,
+    color: COLORS.black,
   },
   content: {
-    padding: spacing.lg,
+    padding: SPACING.l,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.sm,
+    marginBottom: SPACING.s,
   },
   titleContainer: {
     flex: 1,
   },
   trainLabel: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs / 2,
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
   },
   title: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.text,
+    fontSize: 20,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
   },
   profileIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: COLORS.surfaceHighlight,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -145,9 +143,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   details: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
+    fontSize: 14,
+    fontFamily: FONTS.regular,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.m,
   },
   startButton: {
     width: '100%',

@@ -3,12 +3,12 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  SafeAreaView, 
   ScrollView, 
   TouchableOpacity, 
   StatusBar,
   useWindowDimensions
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
 import { ProgressBar } from '@/components/ui/ProgressBar';

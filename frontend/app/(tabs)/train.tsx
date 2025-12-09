@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { TabSwitcher } from '../../src/components/ui/TabSwitcher';
 import SearchBar from '../../src/components/ui/SearchBar';
@@ -84,6 +84,7 @@ export default function TrainScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.categoriesScrollView}
         contentContainerStyle={styles.categoriesContainer}
       >
         {CATEGORIES.map((category) => (
@@ -168,10 +169,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.md,
   },
+  categoriesScrollView: {
+    maxHeight: 60,
+    marginBottom: spacing.md,
+  },
   categoriesContainer: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
     gap: spacing.sm,
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,

@@ -1,5 +1,12 @@
+// Bridge file - redirects to new unified theme
+import { FONTS } from '@/constants/theme';
+
 export const typography = {
-  // Font sizes
+  fontFamily: {
+    regular: FONTS.regular,
+    medium: FONTS.medium,
+    bold: FONTS.bold,
+  },
   fontSize: {
     xs: 12,
     sm: 14,
@@ -7,23 +14,13 @@ export const typography = {
     lg: 18,
     xl: 20,
     '2xl': 24,
-    '3xl': 32,
-    '4xl': 40,
+    '3xl': 30,
   },
-  
-  // Font weights
   fontWeight: {
-    normal: '400' as const,
+    regular: '400' as const,
     medium: '500' as const,
     semibold: '600' as const,
     bold: '700' as const,
-  },
-  
-  // Line heights
-  lineHeight: {
-    tight: 1.2,
-    normal: 1.5,
-    relaxed: 1.75,
   },
 } as const;
 

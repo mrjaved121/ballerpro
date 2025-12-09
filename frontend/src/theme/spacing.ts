@@ -1,10 +1,13 @@
+// Bridge file - redirects to new unified theme
+import { SPACING } from '@/constants/theme';
+
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 40,
+  xs: SPACING.xs,    // 4
+  sm: SPACING.s,     // 8
+  md: SPACING.m,     // 12
+  lg: SPACING.l,     // 16
+  xl: SPACING.xl,    // 24
+  xxl: SPACING.xxl,  // 32
 } as const;
 
 export const borderRadius = {
