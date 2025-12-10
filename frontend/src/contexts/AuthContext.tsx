@@ -35,35 +35,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const initializeAuth = async () => {
     try {
-      console.log('[AuthContext] 🔄 Initializing authentication...');
       const user = await authService.getCurrentUser();
       const onboardingData = await storage.getOnboardingData();
 
       if (user) {
-        console.log('[AuthContext] 📦 User loaded from storage:', {
-          email: user.email,
-          onboardingCompleted: user.onboardingCompleted,
-          type: typeof user.onboardingCompleted,
-          isTrue: user.onboardingCompleted === true,
-        });
-        
         setState({
           user,
           isAuthenticated: true,
           isLoading: false,
           onboardingData: onboardingData || undefined,
         });
-        console.log('[AuthContext] ✅ User authenticated:', user.email);
       } else {
         setState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
-        console.log('[AuthContext] ❌ No authenticated user');
       }
     } catch (error) {
-      console.error('[AuthContext] ❌ Initialization error:', error);
+      console.error('[AuthContext] Initialization error:', error);
       setState({
         user: null,
         isAuthenticated: false,
@@ -74,41 +64,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      console.log('[AuthContext] 🔐 Starting login for:', credentials.email);
       const user = await authService.login(credentials);
-      
-      console.log('[AuthContext] ✅ Login successful - Setting state:', {
-        email: user.email,
-        onboardingCompleted: user.onboardingCompleted,
-        type: typeof user.onboardingCompleted,
-        isTrue: user.onboardingCompleted === true,
-      });
-      
       setState({
         user,
         isAuthenticated: true,
         isLoading: false,
       });
-      
-      console.log('[AuthContext] ✅ State updated - User should be authenticated now');
     } catch (error) {
-      console.error('[AuthContext] ❌ Login error:', error);
+      console.error('[AuthContext] Login error:', error);
       throw error;
     }
   };
 
   const register = async (credentials: RegisterCredentials) => {
     try {
-      console.log('[AuthContext] Register...');
       const user = await authService.register(credentials);
       setState({
         user,
         isAuthenticated: true,
         isLoading: false,
-      });
-      console.log('[AuthContext] ✅ User registered:', {
-        email: user.email,
-        onboardingCompleted: user.onboardingCompleted,
       });
     } catch (error) {
       console.error('[AuthContext] Register error:', error);
@@ -118,7 +92,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      console.log('[AuthContext] Logout...');
       await authService.logout();
       setState({
         user: null,
@@ -143,12 +116,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       onboardingData: updatedData,
     }));
     
-    console.log('[AuthContext] Onboarding data updated');
   };
 
   const completeOnboarding = async () => {
     try {
-      console.log('[AuthContext] Completing onboarding...');
       
       // Update user state to mark onboarding as complete
       const updatedUser = await authService.completeOnboarding();
@@ -160,10 +131,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         onboardingData: undefined,
       }));
       
-      console.log('[AuthContext] ✅ Onboarding completed - User state updated:', {
-        email: updatedUser.email,
-        onboardingCompleted: updatedUser.onboardingCompleted,
-      });
     } catch (error) {
       console.error('[AuthContext] Complete onboarding error:', error);
       throw error;

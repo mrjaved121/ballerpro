@@ -35,6 +35,7 @@ export const formatUserResponse = (user, options = {}) => {
     name: user.name,
     avatar: user.avatar,
     isEmailVerified: user.isEmailVerified,
+    onboardingCompleted: Boolean(user.onboarding?.completed),
     createdAt: user.createdAt,
   };
 

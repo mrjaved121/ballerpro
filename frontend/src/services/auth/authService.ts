@@ -12,7 +12,6 @@ export const authService = {
    */
   async register(credentials: RegisterCredentials): Promise<User> {
     try {
-      console.log('[AuthService] Register attempt:', credentials.email);
       
       const response = await apiClient.post<ApiResponse<AuthResponse>>(
         API_CONFIG.ENDPOINTS.AUTH.REGISTER,
@@ -46,7 +45,6 @@ export const authService = {
       await storage.saveRefreshToken(refreshToken);
       await storage.saveUser(user);
 
-      console.log('[AuthService] ✅ Registration successful:', user.email);
       return user;
     } catch (error: any) {
       console.error('[AuthService] ❌ Registration error:', error);
@@ -80,7 +78,6 @@ export const authService = {
    */
   async login(credentials: LoginCredentials): Promise<User> {
     try {
-      console.log('[AuthService] Login attempt:', credentials.email);
       
       const response = await apiClient.post<ApiResponse<AuthResponse>>(
         API_CONFIG.ENDPOINTS.AUTH.LOGIN,
@@ -96,35 +93,20 @@ export const authService = {
 
       const { user: backendUser, token, refreshToken } = response.data.data;
 
-      console.log('[AuthService] 🔍 Backend user data:', {
-        email: backendUser.email,
-        onboardingCompleted: backendUser.onboardingCompleted,
-        type: typeof backendUser.onboardingCompleted,
-        value: backendUser.onboardingCompleted,
-      });
-
       // Transform backend user to app user format
-      // Handle onboardingCompleted: backend might return boolean, string, number, or null
+      // Handle onboardingCompleted: backend might return boolean, string, or number
       let onboardingCompleted = false;
       const onboardingValue = backendUser.onboardingCompleted;
       
-      // Check various formats that could indicate onboarding is completed
       if (
         onboardingValue === true ||
         onboardingValue === 'true' ||
         onboardingValue === 1 ||
         onboardingValue === '1' ||
-        onboardingValue === 'True' ||
         String(onboardingValue).toLowerCase() === 'true'
       ) {
         onboardingCompleted = true;
       }
-
-      console.log('[AuthService] ✅ Processed onboarding status:', {
-        original: backendUser.onboardingCompleted,
-        processed: onboardingCompleted,
-        isTrue: onboardingCompleted === true,
-      });
 
       const user: User = {
         id: backendUser.id,
@@ -137,25 +119,10 @@ export const authService = {
         createdAt: backendUser.createdAt,
       };
 
-      console.log('[AuthService] 📦 Final user object:', {
-        email: user.email,
-        onboardingCompleted: user.onboardingCompleted,
-        type: typeof user.onboardingCompleted,
-      });
-
       // Save tokens and user data
       await storage.saveToken(token);
       await storage.saveRefreshToken(refreshToken);
-      
-      console.log('[AuthService] 💾 Saving user to storage after login:', {
-        email: user.email,
-        onboardingCompleted: user.onboardingCompleted,
-        type: typeof user.onboardingCompleted,
-      });
-      
       await storage.saveUser(user);
-      
-      console.log('[AuthService] ✅ Login successful - User saved:', user.email);
       return user;
     } catch (error: any) {
       console.error('[AuthService] ❌ Login error:', error);
@@ -189,7 +156,6 @@ export const authService = {
    */
   async logout(): Promise<void> {
     try {
-      console.log('[AuthService] Logout initiated');
       
       // Try to call logout endpoint (best effort - don't fail if it errors)
       try {
@@ -201,7 +167,6 @@ export const authService = {
       // Clear local data regardless of API call result
       await storage.clearAll();
       
-      console.log('[AuthService] ✅ Logout successful');
     } catch (error) {
       console.error('[AuthService] ❌ Logout error:', error);
       // Clear storage even if logout fails
@@ -214,7 +179,6 @@ export const authService = {
    */
   async refreshToken(): Promise<string> {
     try {
-      console.log('[AuthService] Refreshing token...');
       
       const refreshToken = await storage.getRefreshToken();
       if (!refreshToken) {
@@ -233,7 +197,6 @@ export const authService = {
       const { token } = response.data.data;
       await storage.saveToken(token);
 
-      console.log('[AuthService] ✅ Token refreshed successfully');
       return token;
     } catch (error: any) {
       console.error('[AuthService] ❌ Token refresh error:', error);
@@ -252,7 +215,6 @@ export const authService = {
       return null;
     }
 
-    console.log('[AuthService] Current user:', user.email);
     return user;
   },
 
@@ -268,7 +230,6 @@ export const authService = {
    */
   async clearAuth(): Promise<void> {
     await storage.clearAll();
-    console.log('[AuthService] Authentication cleared');
   },
 
   /**
@@ -289,7 +250,6 @@ export const authService = {
     // Update storage
     await storage.saveUser(updatedUser);
 
-    console.log('[AuthService] User updated:', updatedUser.email);
     return updatedUser;
   },
 

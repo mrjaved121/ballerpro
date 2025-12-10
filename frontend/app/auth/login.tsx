@@ -37,7 +37,12 @@ export default function LoginScreen() {
       setIsLoading(true);
       setError(null);
       await login({ email, password });
-      // Navigation handled by index.tsx based on auth state
+      
+      // Navigate to root - index.tsx will detect auth state and redirect appropriately
+      // This ensures proper navigation stack handling in Expo Router
+      setTimeout(() => {
+        router.replace('/');
+      }, 300);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to login. Please try again.';
       setError(errorMessage);

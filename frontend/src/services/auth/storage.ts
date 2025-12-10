@@ -96,43 +96,25 @@ export const storage = {
   // User Management
   async saveUser(user: User): Promise<void> {
     await cleanupLegacyKeys();
-    console.log('[Storage] 💾 Saving user to storage:', {
-      email: user.email,
-      onboardingCompleted: user.onboardingCompleted,
-      type: typeof user.onboardingCompleted,
-    });
     await secureSet(STORAGE_KEYS.USER, JSON.stringify(user));
-    console.log('[Storage] ✅ User saved to storage:', user.email);
   },
 
   async getUser(): Promise<User | null> {
     await cleanupLegacyKeys();
     const userData = await secureGet(STORAGE_KEYS.USER);
-    if (!userData) {
-      console.log('[Storage] 📭 No user data in storage');
-      return null;
-    }
-    const user = JSON.parse(userData);
-    console.log('[Storage] 📖 User loaded from storage:', {
-      email: user.email,
-      onboardingCompleted: user.onboardingCompleted,
-      type: typeof user.onboardingCompleted,
-      isTrue: user.onboardingCompleted === true,
-    });
-    return user;
+    if (!userData) return null;
+    return JSON.parse(userData);
   },
 
   async removeUser(): Promise<void> {
     await cleanupLegacyKeys();
     await secureDelete(STORAGE_KEYS.USER);
-    console.log('[Storage] User removed');
   },
 
   // Access Token Management
   async saveToken(token: string): Promise<void> {
     await cleanupLegacyKeys();
     await secureSet(STORAGE_KEYS.TOKEN, token);
-    console.log('[Storage] Access token saved');
   },
 
   async getToken(): Promise<string | null> {
@@ -143,14 +125,12 @@ export const storage = {
   async removeToken(): Promise<void> {
     await cleanupLegacyKeys();
     await secureDelete(STORAGE_KEYS.TOKEN);
-    console.log('[Storage] Access token removed');
   },
 
   // Refresh Token Management
   async saveRefreshToken(refreshToken: string): Promise<void> {
     await cleanupLegacyKeys();
     await secureSet(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-    console.log('[Storage] Refresh token saved');
   },
 
   async getRefreshToken(): Promise<string | null> {
@@ -161,14 +141,12 @@ export const storage = {
   async removeRefreshToken(): Promise<void> {
     await cleanupLegacyKeys();
     await secureDelete(STORAGE_KEYS.REFRESH_TOKEN);
-    console.log('[Storage] Refresh token removed');
   },
 
   // Onboarding Data
   async saveOnboardingData(data: OnboardingData): Promise<void> {
     await cleanupLegacyKeys();
     await secureSet(STORAGE_KEYS.ONBOARDING, JSON.stringify(data));
-    console.log('[Storage] Onboarding data saved');
   },
 
   async getOnboardingData(): Promise<OnboardingData | null> {
@@ -181,7 +159,6 @@ export const storage = {
   async removeOnboardingData(): Promise<void> {
     await cleanupLegacyKeys();
     await secureDelete(STORAGE_KEYS.ONBOARDING);
-    console.log('[Storage] Onboarding data removed');
   },
 
   // Clear all data
@@ -193,7 +170,6 @@ export const storage = {
       secureDelete(STORAGE_KEYS.REFRESH_TOKEN),
       secureDelete(STORAGE_KEYS.ONBOARDING),
     ]);
-    console.log('[Storage] All data cleared');
   },
 };
 

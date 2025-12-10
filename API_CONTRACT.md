@@ -285,6 +285,7 @@ Authenticates a user and returns authentication tokens.
       "name": "John Doe",
       "avatar": null,
       "isEmailVerified": false,
+      "onboardingCompleted": true,
       "createdAt": "2025-12-09T10:00:00.000Z",
       "updatedAt": "2025-12-09T10:00:00.000Z"
     },
@@ -415,6 +416,7 @@ Authorization: Bearer <access_token>
       "name": "John Doe",
       "avatar": null,
       "isEmailVerified": false,
+      "onboardingCompleted": true,
       "createdAt": "2025-12-09T10:00:00.000Z",
       "updatedAt": "2025-12-09T10:00:00.000Z"
     }

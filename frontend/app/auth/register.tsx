@@ -56,7 +56,12 @@ export default function RegisterScreen() {
       setIsLoading(true);
       setError(null);
       await register({ name: email.split('@')[0], email, password });
-      // Navigation handled by index.tsx based on auth state
+      
+      // Navigate to root - index.tsx will detect auth state and redirect appropriately
+      // New users will be redirected to onboarding
+      setTimeout(() => {
+        router.replace('/');
+      }, 300);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to register. Please try again.';
       setError(errorMessage);
