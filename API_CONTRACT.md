@@ -1090,9 +1090,10 @@ Content-Type: application/json
       "isEmailVerified": false,
       "onboarding": {
         "step1": { "gender": "male" },
-        "step2": { "experienceLevel": "intermediate" },
-        "step3": { "injuries": ["knee"], "otherDetails": "Old sports injury" },
-        "step4": { "goal": "muscle-gain" },
+        "step2": { "goal": "muscle", "trainingLevel": "strength_athlete" },
+        "step3": { "experienceLevel": "intermediate" },
+        "step4": { "injuries": ["knee"], "otherDetails": "Old sports injury" },
+        "step5": { "goal": "muscle-gain" },
         "completed": true,
         "completedAt": "2025-12-09T10:30:00.000Z"
       },
@@ -1351,11 +1352,181 @@ Body (JSON):
 
 ---
 
-### 11. Save Onboarding Step 2 (Journey)
+### 11. Save Onboarding Step 2 (Journey / About / Main Goal)
 
-Saves the second step of user onboarding (experience level selection).
+Saves the second step of user onboarding (main goal and training level selection).
 
 **Endpoint:** `POST /api/onboarding/step2`  
+**Authentication:** Required (Bearer Token)  
+**Rate Limit:** 30 requests per minute
+
+---
+
+#### Request Headers:
+
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+```
+
+---
+
+#### Request Body:
+
+| Field | Type | Required | Allowed Values | Description |
+|-------|------|----------|----------------|-------------|
+| `goal` | string | Yes | `muscle`, `fat_loss`, `endurance`, `strength` | User's main fitness goal |
+| `trainingLevel` | string | Yes | `strength_athlete`, `endurance_runner`, `casual`, `beginner` | User's self-identified training level |
+
+**Example:**
+```json
+{
+  "goal": "muscle",
+  "trainingLevel": "strength_athlete"
+}
+```
+
+---
+
+#### Success Response (200 OK):
+
+```json
+{
+  "success": true,
+  "message": "Step 2 saved successfully",
+  "data": {
+    "onboarding": {
+      "step1": {
+        "gender": "male"
+      },
+      "step2": {
+        "goal": "muscle",
+        "trainingLevel": "strength_athlete"
+      },
+      "completed": false
+    }
+  }
+}
+```
+
+---
+
+#### Error Responses:
+
+**400 Bad Request - Missing Field:**
+```json
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "field": "goal",
+      "message": "Required",
+      "code": "invalid_type"
+    }
+  ]
+}
+```
+
+**400 Bad Request - Invalid Goal Value:**
+```json
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "field": "goal",
+      "message": "Invalid enum value. Expected 'muscle' | 'fat_loss' | 'endurance' | 'strength'",
+      "code": "invalid_enum_value",
+      "options": ["muscle", "fat_loss", "endurance", "strength"]
+    }
+  ]
+}
+```
+
+**400 Bad Request - Invalid Training Level:**
+```json
+{
+  "success": false,
+  "message": "Validation error",
+  "errors": [
+    {
+      "field": "trainingLevel",
+      "message": "Invalid enum value. Expected 'strength_athlete' | 'endurance_runner' | 'casual' | 'beginner'",
+      "code": "invalid_enum_value",
+      "options": ["strength_athlete", "endurance_runner", "casual", "beginner"]
+    }
+  ]
+}
+```
+
+**401 Unauthorized:**
+```json
+{
+  "success": false,
+  "message": "No token provided"
+}
+```
+
+**404 Not Found:**
+```json
+{
+  "success": false,
+  "message": "User not found"
+}
+```
+
+**500 Internal Server Error:**
+```json
+{
+  "success": false,
+  "message": "Failed to save step 2"
+}
+```
+
+---
+
+#### cURL Example:
+
+```bash
+curl -X POST http://localhost:5000/api/onboarding/step2 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{"goal": "muscle", "trainingLevel": "strength_athlete"}'
+```
+
+---
+
+#### Thunder Client Test:
+
+```
+Method: POST
+URL: http://localhost:5000/api/onboarding/step2
+Headers:
+  Authorization: Bearer <paste_token_here>
+  Content-Type: application/json
+Body (JSON):
+{
+  "goal": "muscle",
+  "trainingLevel": "strength_athlete"
+}
+```
+
+---
+
+#### Notes:
+
+- Both fields are required
+- Used to personalize workout recommendations and program selection
+- Includes data from previous steps in the response for client convenience
+
+---
+
+### 12. Save Onboarding Step 3 (Training Experience)
+
+Saves the third step of user onboarding (training experience level).
+
+**Endpoint:** `POST /api/onboarding/step3`  
 **Authentication:** Required (Bearer Token)  
 **Rate Limit:** 30 requests per minute
 
@@ -1390,13 +1561,17 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "Step 2 saved successfully",
+  "message": "Step 3 saved successfully",
   "data": {
     "onboarding": {
       "step1": {
         "gender": "male"
       },
       "step2": {
+        "goal": "muscle",
+        "trainingLevel": "strength_athlete"
+      },
+      "step3": {
         "experienceLevel": "intermediate"
       },
       "completed": false
@@ -1460,7 +1635,7 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "Failed to save onboarding step"
+  "message": "Failed to save step 3"
 }
 ```
 
@@ -1469,7 +1644,7 @@ Content-Type: application/json
 #### cURL Example:
 
 ```bash
-curl -X POST http://localhost:5000/api/onboarding/step2 \
+curl -X POST http://localhost:5000/api/onboarding/step3 \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{"experienceLevel": "intermediate"}'
@@ -1481,7 +1656,7 @@ curl -X POST http://localhost:5000/api/onboarding/step2 \
 
 ```
 Method: POST
-URL: http://localhost:5000/api/onboarding/step2
+URL: http://localhost:5000/api/onboarding/step3
 Headers:
   Authorization: Bearer <paste_token_here>
   Content-Type: application/json
@@ -1493,11 +1668,18 @@ Body (JSON):
 
 ---
 
-### 12. Save Onboarding Step 3 (Training Experience & Injuries)
+#### Notes:
 
-Saves the third step of user onboarding (injury history and additional details).
+- Used to personalize workout difficulty and program recommendations
+- Includes data from previous steps in the response for client convenience
 
-**Endpoint:** `POST /api/onboarding/step3`  
+---
+
+### 13. Save Onboarding Step 4 (Injuries)
+
+Saves the fourth step of user onboarding (injury history and additional details).
+
+**Endpoint:** `POST /api/onboarding/step4`  
 **Authentication:** Required (Bearer Token)  
 **Rate Limit:** 30 requests per minute
 
@@ -1542,16 +1724,20 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "message": "Step 3 saved successfully",
+  "message": "Step 4 saved successfully",
   "data": {
     "onboarding": {
       "step1": {
         "gender": "male"
       },
       "step2": {
-        "experienceLevel": "intermediate"
+        "goal": "muscle",
+        "trainingLevel": "strength_athlete"
       },
       "step3": {
+        "experienceLevel": "intermediate"
+      },
+      "step4": {
         "injuries": ["knee", "shoulder"],
         "otherDetails": "Had knee surgery 2 years ago"
       },
@@ -1600,7 +1786,7 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "Failed to save onboarding step"
+  "message": "Failed to save step 4"
 }
 ```
 
@@ -1609,7 +1795,7 @@ Content-Type: application/json
 #### cURL Example:
 
 ```bash
-curl -X POST http://localhost:5000/api/onboarding/step3 \
+curl -X POST http://localhost:5000/api/onboarding/step4 \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -1624,7 +1810,7 @@ curl -X POST http://localhost:5000/api/onboarding/step3 \
 
 ```
 Method: POST
-URL: http://localhost:5000/api/onboarding/step3
+URL: http://localhost:5000/api/onboarding/step4
 Headers:
   Authorization: Bearer <paste_token_here>
   Content-Type: application/json
@@ -1645,11 +1831,11 @@ Body (JSON):
 
 ---
 
-### 13. Save Onboarding Step 4 (Main Goal) & Complete Onboarding
+### 14. Save Onboarding Step 5 (Main Goal) & Complete Onboarding
 
 Saves the final step of user onboarding (main fitness goal) and marks onboarding as complete.
 
-**Endpoint:** `POST /api/onboarding/step4`  
+**Endpoint:** `POST /api/onboarding/step5`  
 **Authentication:** Required (Bearer Token)  
 **Rate Limit:** 30 requests per minute
 
@@ -1691,13 +1877,17 @@ Content-Type: application/json
         "gender": "male"
       },
       "step2": {
-        "experienceLevel": "intermediate"
+        "goal": "muscle",
+        "trainingLevel": "strength_athlete"
       },
       "step3": {
+        "experienceLevel": "intermediate"
+      },
+      "step4": {
         "injuries": ["knee"],
         "otherDetails": "Old sports injury"
       },
-      "step4": {
+      "step5": {
         "goal": "muscle-gain"
       },
       "completed": true,
@@ -1762,7 +1952,7 @@ Content-Type: application/json
 ```json
 {
   "success": false,
-  "message": "Failed to complete onboarding"
+  "message": "Failed to save step 5"
 }
 ```
 
@@ -1771,7 +1961,7 @@ Content-Type: application/json
 #### cURL Example:
 
 ```bash
-curl -X POST http://localhost:5000/api/onboarding/step4 \
+curl -X POST http://localhost:5000/api/onboarding/step5 \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{"goal": "muscle-gain"}'
@@ -1783,7 +1973,7 @@ curl -X POST http://localhost:5000/api/onboarding/step4 \
 
 ```
 Method: POST
-URL: http://localhost:5000/api/onboarding/step4
+URL: http://localhost:5000/api/onboarding/step5
 Headers:
   Authorization: Bearer <paste_token_here>
   Content-Type: application/json
@@ -2024,11 +2214,11 @@ URL: http://localhost:5000/health
 - **`/auth/register`** → `POST /api/auth/register`
 
 #### **Onboarding Screens**
-- **`/onboarding/about`** → `POST /api/onboarding/step1`
-- **`/onboarding/journey`** → `POST /api/onboarding/step2`
-- **`/onboarding/trainingExperience`** → `POST /api/onboarding/step3`
-- **`/onboarding/injuries`** → (Merged with step 3 or 4)
-- **`/onboarding/mainGoal`** → `POST /api/onboarding/step4`
+- **`/onboarding/about`** → `POST /api/onboarding/step1` (Gender)
+- **`/onboarding/journey`** → `POST /api/onboarding/step2` (Goal & Training Level)
+- **`/onboarding/trainingExperience`** → `POST /api/onboarding/step3` (Experience Level)
+- **`/onboarding/injuries`** → `POST /api/onboarding/step4` (Injuries)
+- **`/onboarding/mainGoal`** → `POST /api/onboarding/step5` (Main Goal - Completes Onboarding)
 
 #### **Main App Screens**
 - **`/(tabs)/index`** (Home Dashboard) → 
@@ -2401,22 +2591,27 @@ Before testing, ensure the following are running:
    **Body:** `{ "gender": "male" }`  
    **Expected:** Status 200, step1 saved
 
-6. **Save Step 2 (Experience)** 🔐  
+6. **Save Step 2 (Journey - Goal & Training Level)** 🔐  
    `POST /api/onboarding/step2`  
-   **Body:** `{ "experienceLevel": "intermediate" }`  
+   **Body:** `{ "goal": "muscle", "trainingLevel": "strength_athlete" }`  
    **Expected:** Status 200, step2 saved
 
-7. **Save Step 3 (Injuries)** 🔐  
+7. **Save Step 3 (Training Experience)** 🔐  
    `POST /api/onboarding/step3`  
-   **Body:** `{ "injuries": ["knee"], "otherDetails": "" }`  
+   **Body:** `{ "experienceLevel": "intermediate" }`  
    **Expected:** Status 200, step3 saved
 
-8. **Save Step 4 (Goal) & Complete** 🔐  
+8. **Save Step 4 (Injuries)** 🔐  
    `POST /api/onboarding/step4`  
+   **Body:** `{ "injuries": ["knee"], "otherDetails": "" }`  
+   **Expected:** Status 200, step4 saved
+
+9. **Save Step 5 (Main Goal) & Complete** 🔐  
+   `POST /api/onboarding/step5`  
    **Body:** `{ "goal": "muscle-gain" }`  
    **Expected:** Status 200, `completed: true`, `completedAt` timestamp
 
-9. **Check Onboarding Status** 🔐  
+10. **Check Onboarding Status** 🔐  
    `GET /api/onboarding/status`  
    **Expected:** Status 200, all steps visible, `completed: true`
 

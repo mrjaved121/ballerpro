@@ -35,6 +35,13 @@ export const COLORS = {
   primaryTintStrong: "rgba(239, 67, 67, 0.3)", // Icon bg
   whiteTint: "rgba(255, 255, 255, 0.1)",
   goldTint: "rgba(255, 215, 0, 0.2)",
+  // Progress/Charts
+  progressTrack: "rgba(239, 67, 67, 0.1)", // Faint red
+  // Leaderboard Ranks
+  silver: "#C0C0C0",
+  bronze: "#CD7F32",
+  // Card Background
+  card: "#1C1C1E",
 };
 
 export const SPACING = {

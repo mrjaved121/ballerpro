@@ -1,6 +1,8 @@
-// ⚠️ MOCK SERVICE - NO BACKEND REQUIRED
-// This service works OFFLINE using in-memory storage
-// Perfect for frontend testing before backend is ready
+// Onboarding Service (API-backed)
+// Step-by-step: step1 & step2 call real API. Remaining steps can be wired similarly.
+
+import apiClient from '../api/api';
+import { ApiResponse } from '@/types/auth';
 
 export interface Step1Data {
   gender?: string;
@@ -14,113 +16,180 @@ export interface OnboardingData {
   step3?: Record<string, any>;
   step4?: Record<string, any>;
   step5?: Record<string, any>;
-  completed: boolean;
+  completed?: boolean;
   completedAt?: string;
 }
 
-// In-memory storage (no API calls)
-let mockOnboardingData: OnboardingData = {
-  completed: false,
-};
-
 class OnboardingService {
-  // Mock delay to simulate network (optional, for realistic UX)
-  private async mockDelay(ms: number = 300): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   // Save Step 1 (About - Gender)
   async saveStep1(data: Step1Data): Promise<OnboardingData> {
-    console.log('[OnboardingService] Saving Step 1 (About):', data);
-    await this.mockDelay(200);
-    
-    mockOnboardingData = {
-      ...mockOnboardingData,
-      step1: { ...mockOnboardingData.step1, ...data },
-    };
-    
-    console.log('[OnboardingService] ✅ Step 1 saved');
-    return { ...mockOnboardingData };
+    console.log('[OnboardingService] Saving Step 1 (About) via API:', data);
+
+    try {
+      const response = await apiClient.post<ApiResponse<OnboardingData>>(
+        '/onboarding/step1',
+        data
+      );
+
+      if (!response.data?.success || !response.data?.data) {
+        throw new Error(response.data?.message || 'Failed to save onboarding step 1');
+      }
+
+      const serverData = response.data.data;
+      console.log('[OnboardingService] ✅ Step 1 saved (API)');
+      return serverData;
+    } catch (error: any) {
+      console.error('[OnboardingService] ❌ Step 1 save failed:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save onboarding step 1';
+      throw new Error(message);
+    }
   }
 
-  // Save Step 2 (Journey - Goals + Experience Level)
-  async saveStep2(data: Record<string, any>): Promise<OnboardingData> {
-    console.log('[OnboardingService] Saving Step 2 (Journey):', data);
-    await this.mockDelay(200);
-    
-    // Merge with step1 data since this is part of initial profile
-    mockOnboardingData = {
-      ...mockOnboardingData,
-      step1: { 
-        ...mockOnboardingData.step1, 
-        goal: data.goal,
-        trainingLevel: data.trainingLevel 
-      },
-      step2: data,
-    };
-    
-    console.log('[OnboardingService] ✅ Step 2 (Journey) saved');
-    return { ...mockOnboardingData };
+  // Save Step 2 (Journey - Goals + Training Level)
+  // API: POST /api/onboarding/step2
+  // Payload: { goal: "muscle" | "fat_loss" | "endurance" | "strength", trainingLevel: "strength_athlete" | "endurance_runner" | "casual" | "beginner" }
+  async saveStep2(data: { goal: string; trainingLevel: string }): Promise<OnboardingData> {
+    console.log('[OnboardingService] Saving Step 2 (Journey) via API:', data);
+
+    try {
+      // Call backend endpoint: POST /api/onboarding/step2
+      const response = await apiClient.post<ApiResponse<OnboardingData>>(
+        '/onboarding/step2',
+        {
+          goal: data.goal,
+          trainingLevel: data.trainingLevel,
+        }
+      );
+
+      if (!response.data?.success || !response.data?.data) {
+        throw new Error(response.data?.message || 'Failed to save onboarding step 2');
+      }
+
+      const serverData = response.data.data;
+      console.log('[OnboardingService] ✅ Step 2 saved (API)');
+      return serverData;
+    } catch (error: any) {
+      console.error('[OnboardingService] ❌ Step 2 save failed:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save onboarding step 2';
+      throw new Error(message);
+    }
   }
 
   // Save Step 3 (Training Experience)
-  async saveStep3(data: Record<string, any>): Promise<OnboardingData> {
-    console.log('[OnboardingService] Saving Step 3 (Training Experience):', data);
-    await this.mockDelay(200);
-    
-    mockOnboardingData = {
-      ...mockOnboardingData,
-      step3: data,
-    };
-    
-    console.log('[OnboardingService] ✅ Step 3 (Training Experience) saved');
-    return { ...mockOnboardingData };
+  // API: POST /api/onboarding/step3
+  // Payload: { experienceLevel: "beginner" | "intermediate" | "advanced" }
+  async saveStep3(data: { experienceLevel: 'beginner' | 'intermediate' | 'advanced' }): Promise<OnboardingData> {
+    console.log('[OnboardingService] Saving Step 3 (Training Experience) via API:', data);
+
+    try {
+      // Call backend endpoint: POST /api/onboarding/step3
+      const response = await apiClient.post<ApiResponse<OnboardingData>>(
+        '/onboarding/step3',
+        {
+          experienceLevel: data.experienceLevel,
+        }
+      );
+
+      if (!response.data?.success || !response.data?.data) {
+        throw new Error(response.data?.message || 'Failed to save onboarding step 3');
+      }
+
+      const serverData = response.data.data;
+      console.log('[OnboardingService] ✅ Step 3 saved (API)');
+      return serverData;
+    } catch (error: any) {
+      console.error('[OnboardingService] ❌ Step 3 save failed:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save onboarding step 3';
+      throw new Error(message);
+    }
   }
 
   // Save Step 4 (Injuries)
-  async saveStep4(data: Record<string, any>): Promise<OnboardingData> {
-    console.log('[OnboardingService] Saving Step 4 (Injuries):', data);
-    await this.mockDelay(200);
-    
-    mockOnboardingData = {
-      ...mockOnboardingData,
-      step4: data,
-    };
-    
-    console.log('[OnboardingService] ✅ Step 4 (Injuries) saved');
-    return { ...mockOnboardingData };
+  // API: POST /api/onboarding/step4
+  // Payload: { injuries: string[], otherDetails: string }
+  async saveStep4(data: { injuries: string[]; otherDetails: string }): Promise<OnboardingData> {
+    console.log('[OnboardingService] Saving Step 4 (Injuries) via API:', data);
+
+    try {
+      // Call backend endpoint: POST /api/onboarding/step4
+      const response = await apiClient.post<ApiResponse<OnboardingData>>(
+        '/onboarding/step4',
+        {
+          injuries: data.injuries,
+          otherDetails: data.otherDetails || '',
+        }
+      );
+
+      if (!response.data?.success || !response.data?.data) {
+        throw new Error(response.data?.message || 'Failed to save onboarding step 4');
+      }
+
+      const serverData = response.data.data;
+      console.log('[OnboardingService] ✅ Step 4 saved (API)');
+      return serverData;
+    } catch (error: any) {
+      console.error('[OnboardingService] ❌ Step 4 save failed:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to save onboarding step 4';
+      throw new Error(message);
+    }
   }
 
-  // Save Step 5 (Main Goal) and complete onboarding
-  async saveStep5(data: Record<string, any>): Promise<OnboardingData> {
-    console.log('[OnboardingService] Saving Step 5 (Main Goal):', data);
-    await this.mockDelay(200);
-    
-    mockOnboardingData = {
-      ...mockOnboardingData,
-      step5: data,
-      completed: true,
-      completedAt: new Date().toISOString(),
-    };
-    
-    console.log('[OnboardingService] ✅ Step 5 (Main Goal) saved - Onboarding Complete! 🎉');
-    console.log('[OnboardingService] Final data:', JSON.stringify(mockOnboardingData, null, 2));
-    return { ...mockOnboardingData };
+  // Save Step 5 (Main Goal) - Completes onboarding
+  // API: POST /api/onboarding/step5
+  // Payload: { goal: "muscle-gain" | "fat-loss" | "maintenance" }
+  // This endpoint marks onboarding as complete on the backend
+  async saveStep5(data: { goal: 'muscle-gain' | 'fat-loss' | 'maintenance' }): Promise<OnboardingData> {
+    console.log('[OnboardingService] Saving Step 5 (Main Goal) via API - Completing onboarding:', data);
+
+    try {
+      // Call backend endpoint: POST /api/onboarding/step5
+      const response = await apiClient.post<ApiResponse<OnboardingData>>(
+        '/onboarding/step5',
+        {
+          goal: data.goal,
+        }
+      );
+
+      if (!response.data?.success || !response.data?.data) {
+        throw new Error(response.data?.message || 'Failed to complete onboarding');
+      }
+
+      const serverData = response.data.data;
+      console.log('[OnboardingService] ✅ Step 5 saved (API) - Onboarding Complete! 🎉');
+      return {
+        ...serverData,
+        completed: true,
+        completedAt: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      console.error('[OnboardingService] ❌ Step 5 save failed:', error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to complete onboarding';
+      throw new Error(message);
+    }
   }
 
-  // Get onboarding status
   async getStatus(): Promise<OnboardingData> {
-    console.log('[OnboardingService] Getting status...');
-    await this.mockDelay(100);
-    return { ...mockOnboardingData };
+    // Placeholder: when GET endpoint is available, call it here
+    throw new Error('getStatus not implemented yet - wire to backend endpoint.');
   }
 
-  // Reset onboarding (for testing)
   async reset(): Promise<void> {
-    console.log('[OnboardingService] Resetting onboarding data');
-    mockOnboardingData = {
-      completed: false,
-    };
+    throw new Error('reset not implemented in API-backed service.');
   }
 }
 

@@ -62,12 +62,10 @@ export default function OnboardingStep3() {
       setIsLoading(true);
       setError(null);
       
-      console.log('[Injuries] Saving step 4...');
       await onboardingService.saveStep4({
         injuries: Array.from(selectedInjuries),
         otherDetails: otherDetails.trim(),
       });
-      console.log('[Injuries] ✅ Saved, navigating to Main Goal');
       
       router.push('/onboarding/mainGoal');
     } catch (err: any) {

@@ -4,10 +4,10 @@ import {
   Text, 
   FlatList, 
   StyleSheet, 
-  SafeAreaView, 
   TouchableOpacity,
   StatusBar
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS } from '@/constants/theme';
 import { MOCK_RECIPES } from '@/constants/recipes';
@@ -16,18 +16,27 @@ import FilterList from '@/components/ui/FilterList';
 import RecipeCard from '@/components/ui/RecipeCard';
 
 export default function RecipesScreen() {
-  const renderHeader = () => (
-    <View>
-      <SearchBar />
-      <FilterList />
-    </View>
-  );
+  const insets = useSafeAreaInsets();
+
+  const renderHeader = () => {
+    if (!MOCK_RECIPES || MOCK_RECIPES.length === 0) {
+      return null;
+    }
+    return (
+      <View style={styles.headerSection}>
+        <View style={styles.searchBarWrapper}>
+          <SearchBar />
+        </View>
+        <FilterList />
+      </View>
+    );
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       {/* Top App Bar */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: SPACING.s + insets.top }]}>
         <TouchableOpacity style={styles.iconButton}>
           <MaterialIcons name="arrow-back-ios-new" size={24} color={COLORS.text} />
         </TouchableOpacity>
@@ -38,10 +47,15 @@ export default function RecipesScreen() {
       <FlatList
         data={MOCK_RECIPES}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <RecipeCard item={item} />}
+        renderItem={({ item }) => {
+          return <RecipeCard item={item} />;
+        }}
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingTop: SPACING.s },
+        ]}
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
       />
@@ -66,6 +80,14 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.s,
     marginBottom: SPACING.s,
   },
+  headerSection: {
+    paddingHorizontal: SPACING.l,
+    paddingTop: SPACING.m,
+    paddingBottom: SPACING.m,
+  },
+  searchBarWrapper: {
+    marginBottom: SPACING.m,
+  },
   headerTitle: {
     color: COLORS.text,
     fontSize: 20,
@@ -85,7 +107,7 @@ const styles = StyleSheet.create({
   columnWrapper: {
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.l,
-    gap: SPACING.l, // Horizontal gap
+    marginBottom: SPACING.s,
   },
   fab: {
     position: 'absolute',

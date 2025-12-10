@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS } from '@/constants/theme';
 import { LeaderboardUser } from '@/types/leaderboard';
@@ -29,13 +30,14 @@ const CURRENT_USER: LeaderboardUser = {
 
 export default function LeaderboardScreen() {
   const [activeTab, setActiveTab] = useState<'Global' | 'Program'>('Global');
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       <View style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + SPACING.xs }]}>
           <TouchableOpacity style={styles.iconButton}>
             <Ionicons name="chevron-back" size={24} color={COLORS.text} />
           </TouchableOpacity>
@@ -47,7 +49,13 @@ export default function LeaderboardScreen() {
         {/* Tabs */}
         <LeaderboardTabs activeTab={activeTab} onTabChange={setActiveTab} />
         {/* List */}
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingTop: SPACING.xs },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
           {MOCK_LEADERBOARD.map((user) => (
             <LeaderboardRow key={user.id} user={user} />
           ))}

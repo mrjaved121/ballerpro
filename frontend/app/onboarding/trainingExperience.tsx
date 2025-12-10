@@ -30,11 +30,9 @@ export default function OnboardingStep2() {
       setIsLoading(true);
       setError(null);
       
-      console.log('[Training Experience] Saving step 3...');
       await onboardingService.saveStep3({
         experienceLevel: selectedLevel,
       });
-      console.log('[Training Experience] ✅ Saved, navigating to Injuries');
       
       router.push('/onboarding/injuries');
     } catch (err: any) {

@@ -3,14 +3,15 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  SafeAreaView, 
   ScrollView, 
   TouchableOpacity,
   StatusBar,
   useWindowDimensions,
   FlatList,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
 import WeeklySummaryCard from '@/components/ui/WeeklySummaryCard';
 import PostCard from '@/components/ui/PostCard';
@@ -28,9 +29,14 @@ export default function CommunityScreen() {
   const { width } = useWindowDimensions();
   const isTablet = width > 768;
   const contentWidth = isTablet ? SIZES.containerMaxWidth : '100%';
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<FeedFilter>('feed');
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
+  
+  // Calculate navbar height: header (44) + tabs (44) + padding + safe area
+  const navbarHeight = 44 + 44 + SPACING.s + SPACING.m + insets.top;
   
   // TODO: Fetch real data when API is ready
   // useEffect(() => {
@@ -66,12 +72,17 @@ export default function CommunityScreen() {
     // TODO: Navigate to user profile
   };
 
-  const renderHeader = () => (
-    <View style={styles.headerContent}>
+  const renderNavbar = () => (
+    <View style={[styles.navbar, { paddingTop: SPACING.s + insets.top }]}>
       {/* Header Title */}
       <View style={styles.headerTop}>
-        <Text style={styles.headerTitle}>Community</Text>
-        <TouchableOpacity activeOpacity={0.7}>
+        <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
+          <MaterialIcons name="search" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <View style={styles.headerTitleWrapper}>
+          <Text style={styles.headerTitle}>Community</Text>
+        </View>
+        <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
           <MaterialIcons name="notifications-none" size={24} color={COLORS.white} />
         </TouchableOpacity>
       </View>
@@ -91,7 +102,13 @@ export default function CommunityScreen() {
                 activeTab === tab.key && styles.tabActive,
               ]}
               activeOpacity={0.7}
-              onPress={() => setActiveTab(tab.key)}
+              onPress={() => {
+                if (tab.key === 'challenges') {
+                  router.push('/(tabs)/challenges');
+                } else {
+                  setActiveTab(tab.key);
+                }
+              }}
             >
               <Text
                 style={[
@@ -105,7 +122,11 @@ export default function CommunityScreen() {
           ))}
         </ScrollView>
       </View>
+    </View>
+  );
 
+  const renderHeader = () => (
+    <View style={styles.headerContent}>
       {/* Weekly Summary - Only on Feed tab */}
       {activeTab === 'feed' && (
         <WeeklySummaryCard summary={MOCK_WEEKLY_SUMMARY} />
@@ -142,8 +163,13 @@ export default function CommunityScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
+      
+      {/* Fixed Navbar */}
+      <View style={styles.navbarWrapper}>
+        {renderNavbar()}
+      </View>
 
       <View style={[styles.container, { width: contentWidth, alignSelf: 'center' }]}>
         {activeTab === 'feed' ? (
@@ -153,7 +179,10 @@ export default function CommunityScreen() {
             keyExtractor={(item) => item.id}
             ListHeaderComponent={renderHeader}
             ListEmptyComponent={renderEmptyState}
-            contentContainerStyle={styles.listContent}
+            contentContainerStyle={[
+              styles.listContent,
+              { paddingTop: navbarHeight + SPACING.m },
+            ]}
             showsVerticalScrollIndicator={false}
             refreshing={false}
             onRefresh={() => {
@@ -164,7 +193,10 @@ export default function CommunityScreen() {
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingTop: navbarHeight + SPACING.m },
+            ]}
           >
             {renderHeader()}
             {renderEmptyState()}
@@ -179,6 +211,21 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  navbarWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    backgroundColor: COLORS.background,
+  },
+  navbar: {
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.m,
+    paddingBottom: SPACING.s,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   container: {
     flex: 1,
@@ -199,17 +246,26 @@ const styles = StyleSheet.create({
   },
   headerTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.l,
+    marginBottom: SPACING.m,
+  },
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleWrapper: {
+    flex: 1,
+    alignItems: 'center',
   },
   headerTitle: {
     color: COLORS.white,
     fontSize: 28,
     fontFamily: FONTS.bold,
+    textAlign: 'center',
   },
   tabsContainer: {
-    marginBottom: SPACING.l,
     marginHorizontal: -SPACING.m, // Extend to edges
   },
   tabsContent: {

@@ -1,7 +1,31 @@
 import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useProtectedRoute } from '@/hooks/useProtectedRoute';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { colors } from '@/theme/colors';
 
+/**
+ * Main App (Tabs) Layout
+ * 
+ * Purpose: Container for main app screens (home, train, track, nutrition, etc.)
+ * 
+ * Protection: Ensures only authenticated users who completed onboarding can access.
+ * If user is not authenticated -> redirect to login
+ * If user hasn't completed onboarding -> redirect to onboarding
+ */
 export default function TabsLayout() {
+  // Guard this stack - only authenticated users who completed onboarding
+  const { isLoading } = useProtectedRoute('app');
+
+  // Show loading while checking authentication status
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -12,6 +36,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#888888',
       }}
+      initialRouteName="index"
     >
       <Tabs.Screen
         name="debug"
@@ -105,4 +130,13 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 

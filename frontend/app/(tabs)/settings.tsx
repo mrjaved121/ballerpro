@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,19 +6,78 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  StatusBar
+  StatusBar,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useAuth } from '@/contexts/AuthContext';
 import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
 import SettingsSection from '@/components/ui/SettingsSection';
 import SettingsRow from '@/components/ui/SettingsRow';
 
+/**
+ * Settings Screen
+ * 
+ * Purpose: App settings and user account management
+ * Features: Profile settings, subscription management, logout
+ * 
+ * Note: Logout clears all tokens and user data, then redirects to login
+ */
 export default function SettingsScreen() {
+  const { logout, user } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const handlePress = (item: string) => {
     console.log(`Pressed: ${item}`);
   };
+
+  /**
+   * Handle logout with confirmation
+   * Clears all authentication data and redirects to login screen
+   */
   const handleLogout = () => {
-    console.log('Logging out...');
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setIsLoggingOut(true);
+              console.log('[Settings] Logout initiated for user:', user?.email);
+              
+              // Call logout - this will:
+              // 1. Call backend logout endpoint
+              // 2. Clear all tokens from SecureStore
+              // 3. Clear user data
+              // 4. Update AuthContext state
+              // 5. Navigation will automatically redirect to login
+              await logout();
+              
+              console.log('[Settings] ✅ Logout successful');
+            } catch (error: any) {
+              console.error('[Settings] ❌ Logout error:', error);
+              setIsLoggingOut(false);
+              
+              // Show error but still try to clear local data
+              Alert.alert(
+                'Logout Error',
+                'There was an issue logging out from the server, but your local session has been cleared.',
+                [{ text: 'OK' }]
+              );
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -66,15 +125,30 @@ export default function SettingsScreen() {
             onPress={() => handlePress('Legal')}
           />
         </SettingsSection>
+        {/* User Info Section */}
+        {user && (
+          <View style={styles.userInfoContainer}>
+            <Text style={styles.userInfoLabel}>Logged in as:</Text>
+            <Text style={styles.userInfoEmail}>{user.email}</Text>
+          </View>
+        )}
+
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
           <TouchableOpacity
-            style={styles.logoutButton}
+            style={[styles.logoutButton, isLoggingOut && styles.logoutButtonDisabled]}
             activeOpacity={0.8}
             onPress={handleLogout}
+            disabled={isLoggingOut}
           >
-            <MaterialIcons name="logout" size={24} color={COLORS.text} />
-            <Text style={styles.logoutText}>Logout</Text>
+            {isLoggingOut ? (
+              <ActivityIndicator size="small" color={COLORS.text} />
+            ) : (
+              <MaterialIcons name="logout" size={24} color={COLORS.text} />
+            )}
+            <Text style={styles.logoutText}>
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -100,8 +174,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.m,
     paddingBottom: SPACING.xxl,
   },
+  userInfoContainer: {
+    marginTop: SPACING.l,
+    marginBottom: SPACING.m,
+    padding: SPACING.m,
+    backgroundColor: COLORS.cardBg,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  userInfoLabel: {
+    color: COLORS.textSecondary,
+    fontSize: SIZES.small,
+    fontFamily: FONTS.regular,
+    marginBottom: SPACING.xs,
+  },
+  userInfoEmail: {
+    color: COLORS.text,
+    fontSize: SIZES.medium,
+    fontFamily: FONTS.medium,
+  },
   logoutContainer: {
-    marginTop: SPACING.xl,
+    marginTop: SPACING.m,
     paddingHorizontal: SPACING.xs,
   },
   logoutButton: {
@@ -117,6 +210,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 15,
     elevation: 8,
+  },
+  logoutButtonDisabled: {
+    opacity: 0.5,
   },
   logoutText: {
     color: COLORS.text,

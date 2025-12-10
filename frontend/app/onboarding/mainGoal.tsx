@@ -43,7 +43,7 @@ const GOAL_OPTIONS = [
 
 export default function OnboardingStep4() {
   const router = useRouter();
-  const { completeOnboarding, updateOnboardingData } = useAuth();
+  const { completeOnboarding, updateOnboardingData, user } = useAuth();
   const [selectedGoal, setSelectedGoal] = useState<GoalType | null>('fat-loss');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,9 +58,7 @@ export default function OnboardingStep4() {
       setIsLoading(true);
       setError(null);
       
-      console.log('[Main Goal] Saving step 5...');
-      
-      // Save step 5 to onboarding service
+      // Save step 5 to onboarding service (this marks onboarding complete on backend)
       await onboardingService.saveStep5({
         goal: selectedGoal,
       });
@@ -68,16 +66,16 @@ export default function OnboardingStep4() {
       // Save goal to auth context
       await updateOnboardingData({ goals: [selectedGoal] });
       
-      // Mark onboarding as complete
       await completeOnboarding();
       
-      // Navigation handled by index.tsx
-      console.log('[Main Goal] ✅ Onboarding Completed! 🎉');
+      // Navigate to root - index.tsx will detect onboarding completion and redirect to home
+      setTimeout(() => {
+        router.replace('/');
+      }, 400);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to complete. Please try again.';
       setError(errorMessage);
       Alert.alert('Error', errorMessage);
-    } finally {
       setIsLoading(false);
     }
   };

@@ -96,7 +96,36 @@ export const authService = {
 
       const { user: backendUser, token, refreshToken } = response.data.data;
 
+      console.log('[AuthService] 🔍 Backend user data:', {
+        email: backendUser.email,
+        onboardingCompleted: backendUser.onboardingCompleted,
+        type: typeof backendUser.onboardingCompleted,
+        value: backendUser.onboardingCompleted,
+      });
+
       // Transform backend user to app user format
+      // Handle onboardingCompleted: backend might return boolean, string, number, or null
+      let onboardingCompleted = false;
+      const onboardingValue = backendUser.onboardingCompleted;
+      
+      // Check various formats that could indicate onboarding is completed
+      if (
+        onboardingValue === true ||
+        onboardingValue === 'true' ||
+        onboardingValue === 1 ||
+        onboardingValue === '1' ||
+        onboardingValue === 'True' ||
+        String(onboardingValue).toLowerCase() === 'true'
+      ) {
+        onboardingCompleted = true;
+      }
+
+      console.log('[AuthService] ✅ Processed onboarding status:', {
+        original: backendUser.onboardingCompleted,
+        processed: onboardingCompleted,
+        isTrue: onboardingCompleted === true,
+      });
+
       const user: User = {
         id: backendUser.id,
         email: backendUser.email,
@@ -104,16 +133,29 @@ export const authService = {
         avatar: backendUser.avatar,
         isEmailVerified: backendUser.isEmailVerified,
         isPremium: false, // TODO: Get from backend when implemented
-        onboardingCompleted: true, // Existing users have completed onboarding
+        onboardingCompleted,
         createdAt: backendUser.createdAt,
       };
+
+      console.log('[AuthService] 📦 Final user object:', {
+        email: user.email,
+        onboardingCompleted: user.onboardingCompleted,
+        type: typeof user.onboardingCompleted,
+      });
 
       // Save tokens and user data
       await storage.saveToken(token);
       await storage.saveRefreshToken(refreshToken);
+      
+      console.log('[AuthService] 💾 Saving user to storage after login:', {
+        email: user.email,
+        onboardingCompleted: user.onboardingCompleted,
+        type: typeof user.onboardingCompleted,
+      });
+      
       await storage.saveUser(user);
-
-      console.log('[AuthService] ✅ Login successful:', user.email);
+      
+      console.log('[AuthService] ✅ Login successful - User saved:', user.email);
       return user;
     } catch (error: any) {
       console.error('[AuthService] ❌ Login error:', error);

@@ -39,12 +39,22 @@ const UserSchema = new Schema(
         },
       },
       step2: {
+        goal: {
+          type: String,
+          enum: ['muscle', 'fat_loss', 'endurance', 'strength'],
+        },
+        trainingLevel: {
+          type: String,
+          enum: ['strength_athlete', 'endurance_runner', 'casual', 'beginner'],
+        },
+      },
+      step3: {
         experienceLevel: {
           type: String,
           enum: ['beginner', 'intermediate', 'advanced'],
         },
       },
-      step3: {
+      step4: {
         injuries: {
           type: [String],
           default: [],
@@ -54,7 +64,7 @@ const UserSchema = new Schema(
           trim: true,
         },
       },
-      step4: {
+      step5: {
         goal: {
           type: String,
           enum: ['muscle-gain', 'fat-loss', 'maintenance'],

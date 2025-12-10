@@ -35,11 +35,9 @@ export default function OnboardingStep1() {
       setIsLoading(true);
       setError(null);
       
-      console.log('[About] Saving gender...', selectedGender);
       await onboardingService.saveStep1({
         gender: selectedGender,
       });
-      console.log('[About] ✅ Saved, navigating to Journey');
       
       router.push('/onboarding/journey');
     } catch (err: any) {

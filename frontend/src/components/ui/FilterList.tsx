@@ -19,6 +19,7 @@ export default function FilterList() {
               styles.chip,
               filter.active ? styles.chipActive : styles.chipInactive
             ]}
+            activeOpacity={0.7}
           >
             <Text 
               style={[
@@ -26,14 +27,14 @@ export default function FilterList() {
                 filter.active ? styles.textActive : styles.textInactive
               ]}
             >
-              {filter.label}
+              {filter.label ? String(filter.label) : ''}
             </Text>
           </TouchableOpacity>
         ))}
         {/* All Filters Button */}
-        <TouchableOpacity style={styles.filterButton}>
+        <TouchableOpacity style={styles.filterButton} activeOpacity={0.7}>
           <MaterialIcons name="tune" size={18} color={COLORS.textSecondary} />
-          <Text style={styles.filterButtonText}>All Filters</Text>
+          <Text style={[styles.filterButtonText, { marginLeft: SPACING.s }]}>All Filters</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -45,8 +46,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.l,
   },
   scrollContent: {
-    paddingHorizontal: SPACING.l,
-    gap: SPACING.m,
+    paddingRight: SPACING.l,
+    // gap: SPACING.m, // Using marginRight on items instead
   },
   chip: {
     height: 36,
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: SPACING.m,
   },
   chipActive: {
     backgroundColor: COLORS.primary,
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
     paddingLeft: SPACING.m,
     paddingRight: SPACING.l,
     borderRadius: 8,
-    gap: SPACING.s,
+    // gap: SPACING.s, // Using marginLeft on text instead
   },
   filterButtonText: {
     color: COLORS.textSecondary,

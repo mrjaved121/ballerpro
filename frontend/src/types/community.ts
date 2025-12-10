@@ -36,3 +36,19 @@ export interface CommunityTab {
 
 export type FeedFilter = 'feed' | 'challenges' | 'leaderboard' | 'events';
 
+export interface Challenge {
+  id: string;
+  title: string;
+  duration: string;
+  image: string;
+}
+
+export interface LeaderboardUser {
+  id: string;
+  rank: number;
+  name: string;
+  steps: number;
+  avatar: string;
+  isCurrentUser?: boolean;
+}
+

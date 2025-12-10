@@ -46,29 +46,23 @@ export default function JourneyScreen() {
   const contentWidth = isTablet ? 600 : '100%';
 
   const handleContinue = async () => {
-    // Prevent multiple submissions
     if (isNavigating) {
-      console.log('[Journey] Already navigating, ignoring...');
       return;
     }
 
     try {
       setIsNavigating(true);
-      console.log('[Journey] Saving step 2...', { selectedGoal, selectedLevel });
       
-      // Save to onboarding service
       await onboardingService.saveStep2({ 
         goal: selectedGoal,
         trainingLevel: selectedLevel
       });
       
-      // Also update AuthContext for compatibility
       await updateOnboardingData({ 
         goals: [selectedGoal],
         trainingLevel: selectedLevel as any
       });
       
-      console.log('[Journey] ✅ Saved, navigating to Training Experience');
       router.push('/onboarding/trainingExperience');
     } catch (error) {
       console.error('[Journey] Error:', error);

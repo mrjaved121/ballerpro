@@ -4,6 +4,7 @@ import {
   saveStep2,
   saveStep3,
   saveStep4,
+  saveStep5,
   getOnboardingStatus,
 } from '../controllers/onboardingController.js';
 import { authenticate } from '../middleware/auth.js';
@@ -13,6 +14,7 @@ import {
   step2Schema,
   step3Schema,
   step4Schema,
+  step5Schema,
 } from '../utils/onboardingValidation.js';
 
 const router = Router();
@@ -25,6 +27,7 @@ router.post('/step1', validate(step1Schema), saveStep1);
 router.post('/step2', validate(step2Schema), saveStep2);
 router.post('/step3', validate(step3Schema), saveStep3);
 router.post('/step4', validate(step4Schema), saveStep4);
+router.post('/step5', validate(step5Schema), saveStep5);
 router.get('/status', getOnboardingStatus);
 
 export default router;

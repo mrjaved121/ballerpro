@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, FONTS } from '@/constants/theme';
 import { RehabListItem } from '@/components/ui/RehabListItem';
@@ -55,25 +56,29 @@ const REHAB_PROTOCOL: RehabItem[] = [
 ];
 
 export default function RehabScreen() {
+  const insets = useSafeAreaInsets();
+  
   const handleItemPress = (item: RehabItem) => {
     console.log('Pressed', item.id);
   };
+  
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       {/* Header */}
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Injury Rehab & Prevention</Text>
-          <View style={{ width: 40 }} />
-        </View>
-      </SafeAreaView>
+      <View style={[styles.header, { paddingTop: SPACING.s + insets.top }]}>
+        <TouchableOpacity style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Injury Rehab & Prevention</Text>
+        <View style={{ width: 40 }} />
+      </View>
       <ScrollView 
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: SPACING.m },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Hero Section */}
@@ -101,7 +106,7 @@ export default function RehabScreen() {
           <Ionicons name="call" size={20} color={COLORS.white} />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -110,16 +115,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  safeArea: {
-    backgroundColor: 'rgba(18,18,18,0.8)', // Semi-transparent header bg
-  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.m,
-    paddingVertical: SPACING.s,
-    height: 56,
+    paddingBottom: SPACING.s,
+    backgroundColor: COLORS.background,
   },
   backButton: {
     width: 40,
