@@ -1,6 +1,7 @@
 import { User } from '../models/User.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
-import { generateToken, generateRefreshToken } from '../utils/jwt.js';
+import { verifyToken } from '../utils/jwt.js';
+import { generateTokenPair, formatUserResponse } from '../utils/authHelpers.js';
 
 // Register new user
 export const register = async (req, res) => {
@@ -10,9 +11,9 @@ export const register = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.status(400).json({
+      res.status(409).json({
         success: false,
-        message: 'User with this email already exists',
+        message: 'Email already registered',
       });
       return;
     }
@@ -28,30 +29,14 @@ export const register = async (req, res) => {
     });
 
     // Generate tokens
-    const token = generateToken({
-      userId: user._id.toString(),
-      email: user.email,
-    });
-
-    const refreshToken = generateRefreshToken({
-      userId: user._id.toString(),
-      email: user.email,
-    });
+    const tokens = generateTokenPair(user);
 
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
       data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar,
-          createdAt: user.createdAt,
-          isEmailVerified: user.isEmailVerified,
-        },
-        token,
-        refreshToken,
+        user: formatUserResponse(user, { includeUpdatedAt: false }), // Register doesn't return updatedAt
+        ...tokens,
       },
     });
   } catch (error) {
@@ -90,36 +75,21 @@ export const login = async (req, res) => {
     }
 
     // Generate tokens
-    const token = generateToken({
-      userId: user._id.toString(),
-      email: user.email,
-    });
-
-    const refreshToken = generateRefreshToken({
-      userId: user._id.toString(),
-      email: user.email,
-    });
+    const tokens = generateTokenPair(user);
 
     res.json({
       success: true,
       message: 'Login successful',
       data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar,
-          isEmailVerified: user.isEmailVerified,
-        },
-        token,
-        refreshToken,
+        user: formatUserResponse(user), // Includes both timestamps
+        ...tokens,
       },
     });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to login',
+      message: 'Login failed. Please try again.',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -140,22 +110,14 @@ export const getMe = async (req, res) => {
     res.json({
       success: true,
       data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          avatar: user.avatar,
-          isEmailVerified: user.isEmailVerified,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
-        },
+        user: formatUserResponse(user), // Includes both timestamps
       },
     });
   } catch (error) {
     console.error('Get me error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to get user',
+      message: 'Failed to fetch user data',
       error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
@@ -175,41 +137,48 @@ export const refreshToken = async (req, res) => {
     }
 
     // Verify refresh token
-    const { verifyToken } = await import('../utils/jwt.js');
     const decoded = verifyToken(refreshTokenValue);
 
-    // Generate new tokens
-    const token = generateToken({
-      userId: decoded.userId,
-      email: decoded.email,
-    });
-
-    const newRefreshToken = generateRefreshToken({
-      userId: decoded.userId,
+    // Generate new token pair with decoded user info
+    const tokens = generateTokenPair({
+      _id: decoded.userId,
       email: decoded.email,
     });
 
     res.json({
       success: true,
-      data: {
-        token,
-        refreshToken: newRefreshToken,
-      },
+      data: tokens,
     });
   } catch (error) {
     console.error('Refresh token error:', error);
-    res.status(401).json({
-      success: false,
-      message: 'Invalid or expired refresh token',
-    });
+    
+    // Handle specific token errors (401) vs server errors (500)
+    if (error.message && (error.message.includes('token') || error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError')) {
+      const message = error.name === 'TokenExpiredError' 
+        ? 'Refresh token has expired' 
+        : 'Invalid refresh token';
+      
+      res.status(401).json({
+        success: false,
+        message,
+      });
+    } else {
+      // Unexpected server error
+      res.status(500).json({
+        success: false,
+        message: 'Failed to refresh token',
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      });
+    }
   }
 };
 
-// Logout (client-side token removal, but we can track here if needed)
+// Logout user
 export const logout = async (req, res) => {
   try {
-    // In a more advanced implementation, you might want to blacklist tokens
-    // For now, we'll just return success - client should remove tokens
+    // In a stateless JWT implementation, logout is handled client-side by removing tokens
+    // Server-side: Could implement token blacklist for additional security
+    // For now, we just confirm successful logout
     res.json({
       success: true,
       message: 'Logged out successfully',
@@ -218,19 +187,22 @@ export const logout = async (req, res) => {
     console.error('Logout error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to logout',
+      message: 'Logout failed',
     });
   }
 };
 
-// Forgot password (placeholder - implement email sending later)
+// Forgot password
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
+    // Check if user exists
     const user = await User.findOne({ email });
+    
+    // Always return same message for security (prevent email enumeration)
+    // Whether user exists or not, we return success
     if (!user) {
-      // Don't reveal if user exists for security
       res.json({
         success: true,
         message: 'If an account exists with this email, a password reset link has been sent',
@@ -239,7 +211,12 @@ export const forgotPassword = async (req, res) => {
     }
 
     // TODO: Generate reset token and send email
-    // For now, just return success
+    // For production: 
+    // 1. Generate secure reset token
+    // 2. Store token with expiration (1 hour) in database
+    // 3. Send email with reset link
+    // 4. Implement rate limiting (3 requests per hour per email)
+    
     res.json({
       success: true,
       message: 'If an account exists with this email, a password reset link has been sent',
@@ -248,18 +225,27 @@ export const forgotPassword = async (req, res) => {
     console.error('Forgot password error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to process request',
+      message: 'Failed to process password reset request',
     });
   }
 };
 
-// Reset password (placeholder - implement token verification later)
+// Reset password
 export const resetPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
 
-    // TODO: Verify reset token and update password
-    // For now, return placeholder
+    // TODO: Complete implementation
+    // Production implementation steps:
+    // 1. Hash the provided token
+    // 2. Find user with matching resetPasswordToken
+    // 3. Check if token hasn't expired (resetPasswordExpires > Date.now())
+    // 4. If valid, hash new password and update user
+    // 5. Clear reset token fields
+    // 6. Invalidate all user sessions (optional)
+    // 7. Return success message
+    
+    // For now, return placeholder message
     res.json({
       success: true,
       message: 'Password reset functionality will be implemented soon',

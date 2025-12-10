@@ -1,68 +1,103 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-
-// API base URL - should be moved to config
-const API_BASE_URL = __DEV__
-  ? 'http://localhost:5000/api'
-  : 'https://api.ballerpro.com/api';
+import API_CONFIG from '@/config/api';
+import { storage } from '../auth/storage';
 
 class ApiService {
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
-      baseURL: API_BASE_URL,
-      timeout: 10000,
+      baseURL: API_CONFIG.BASE_URL,
+      timeout: API_CONFIG.TIMEOUT,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
     });
 
-    // Request interceptor
+    // Request interceptor - Add auth token to requests
     this.client.interceptors.request.use(
       async (config) => {
         // Add auth token if available
         try {
-          const { authService } = await import('../auth/authService');
-          const token = await authService.getToken();
-          if (token) {
+          const token = await storage.getToken();
+          if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
           }
         } catch (error) {
-          // Token not available, continue without it
+          console.warn('[ApiService] Failed to get token:', error);
         }
+        
+        console.log(`[ApiService] 🚀 ${config.method?.toUpperCase()} ${config.url}`);
         return config;
       },
       (error) => {
+        console.error('[ApiService] ❌ Request error:', error);
         return Promise.reject(error);
       }
     );
 
-    // Response interceptor
+    // Response interceptor - Handle token refresh and errors
     this.client.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log(`[ApiService] ✅ ${response.config.method?.toUpperCase()} ${response.config.url} - ${response.status}`);
+        return response;
+      },
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
 
+        // Handle 401 Unauthorized - Try to refresh token
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
           try {
-            // Try to refresh token
-            const { authService } = await import('../auth/authService');
-            await authService.refreshToken();
+            console.log('[ApiService] 🔄 Token expired, attempting refresh...');
+            
+            const refreshToken = await storage.getRefreshToken();
+            if (!refreshToken) {
+              throw new Error('No refresh token available');
+            }
 
-            // Retry original request with new token
-            const token = await authService.getToken();
-            if (token) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
+            // Call refresh endpoint
+            const response = await axios.post(
+              `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.AUTH.REFRESH}`,
+              { refreshToken },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                },
+              }
+            );
+
+            if (response.data.success && response.data.data?.token) {
+              const newToken = response.data.data.token;
+              await storage.saveToken(newToken);
+
+              // Retry original request with new token
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              }
+              
+              console.log('[ApiService] ✅ Token refreshed, retrying request');
               return this.client(originalRequest);
             }
           } catch (refreshError) {
-            // Refresh failed, clear auth
-            const { authService } = await import('../auth/authService');
-            await authService.clearAuth();
-            // Could redirect to login here if needed
+            console.error('[ApiService] ❌ Token refresh failed:', refreshError);
+            
+            // Clear auth and reject
+            await storage.clearAll();
+            return Promise.reject(refreshError);
           }
+        }
+
+        // Log error details
+        if (error.response) {
+          console.error(`[ApiService] ❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} - ${error.response.status}`, error.response.data);
+        } else if (error.request) {
+          console.error('[ApiService] ❌ Network error - No response received');
+        } else {
+          console.error('[ApiService] ❌ Request setup error:', error.message);
         }
 
         return Promise.reject(error);
@@ -77,4 +112,3 @@ class ApiService {
 
 export const apiService = new ApiService();
 export default apiService.instance;
-

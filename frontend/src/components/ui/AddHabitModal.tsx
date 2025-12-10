@@ -115,17 +115,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.overlay,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)', // Darker overlay for better contrast
     padding: spacing.lg,
   },
   modalContent: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: '#1C1C1E', // Solid dark background instead of transparent
     borderRadius: spacing.xl,
     padding: spacing.lg,
     width: '100%',
     maxWidth: 380,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)', // Subtle border
     shadowColor: '#000',
-    shadowOpacity: 0.24,
+    shadowOpacity: 0.5,
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 24,
     elevation: 16,
@@ -142,11 +144,11 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   input: {
-    backgroundColor: colors.inputBg,
+    backgroundColor: '#2C2C2E', // Solid input background
     borderRadius: spacing.lg,
     color: colors.text,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: 'rgba(255, 255, 255, 0.15)', // More visible border
     marginBottom: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
   iconSelector: {
     padding: spacing.md,
     borderRadius: 14,
-    backgroundColor: colors.inputBg,
+    backgroundColor: '#2C2C2E', // Solid icon selector background
     marginRight: spacing.sm,
     borderWidth: 2,
     borderColor: 'transparent',

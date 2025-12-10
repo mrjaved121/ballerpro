@@ -25,6 +25,7 @@ const UserSchema = new Schema(
     },
     avatar: {
       type: String,
+      default: null,
     },
     isEmailVerified: {
       type: Boolean,

@@ -25,12 +25,12 @@ export const MoodChip: React.FC<MoodChipProps> = ({ mood, icon, isSelected, onSe
       <MaterialIcons
         name={icon}
         size={20}
-        color={isSelected ? COLORS.gold : 'rgba(255, 255, 255, 0.7)'}
+        color={isSelected ? '#000000' : 'rgba(255, 255, 255, 0.7)'}
       />
       <Text
         style={[
           styles.text,
-          { color: isSelected ? COLORS.gold : 'rgba(255, 255, 255, 0.7)' },
+          { color: isSelected ? '#000000' : 'rgba(255, 255, 255, 0.7)' },
         ]}
       >
         {mood}
@@ -43,29 +43,26 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    paddingRight: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 999,
-    marginRight: SPACING.sm,
-    height: 36,
+    marginRight: SPACING.s,
+    height: 40,
     justifyContent: 'center',
   },
   selectedContainer: {
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.gold, // Golden/yellow background when selected
     borderWidth: 2,
     borderColor: COLORS.gold,
-    paddingLeft: 10,
   },
   unselectedContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#2C2C2E', // Solid dark background
     borderWidth: 0,
-    paddingLeft: 12,
   },
   text: {
     fontFamily: FONTS.medium,
-    fontSize: 14,
-    marginLeft: SPACING.sm,
+    fontSize: 15,
+    marginLeft: SPACING.s,
     lineHeight: 20,
   },
 });

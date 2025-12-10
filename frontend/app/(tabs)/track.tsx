@@ -8,12 +8,12 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
+  StatusBar,
+  useWindowDimensions,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { COLORS, FONTS, SPACING } from '../../src/constants/theme';
+import { COLORS, FONTS, SPACING, SIZES } from '../../src/constants/theme';
 import { MoodChip, MoodType } from '../../src/components/ui/MoodChip';
-import { StatusBar } from 'expo-status-bar';
 
 const MOODS: { type: MoodType; icon: keyof typeof MaterialIcons.glyphMap }[] = [
   { type: 'Great', icon: 'sentiment-very-satisfied' },
@@ -24,41 +24,57 @@ const MOODS: { type: MoodType; icon: keyof typeof MaterialIcons.glyphMap }[] = [
 ];
 
 export default function TrackScreen() {
+  const { width } = useWindowDimensions();
   const [selectedMood, setSelectedMood] = useState<MoodType>('Great');
   const [entryText, setEntryText] = useState('');
+  
+  // Responsive calculation for tablet support
+  const isTablet = width > 768;
+  const contentWidth = isTablet ? SIZES.containerMaxWidth : '100%';
+  
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.iconButton}>
-            <MaterialIcons name="arrow-back-ios" size={24} color={COLORS.white} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Journal</Text>
-          <TouchableOpacity style={styles.calendarButton}>
-            <MaterialIcons name="calendar-today" size={24} color={COLORS.white} />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.dateNav}>
-          <TouchableOpacity style={styles.navButton}>
-            <MaterialIcons name="chevron-left" size={28} color="rgba(255,255,255,0.7)" />
-          </TouchableOpacity>
-          <Text style={styles.dateText}>Today, Oct 26</Text>
-          <TouchableOpacity style={styles.navButton}>
-            <MaterialIcons name="chevron-right" size={28} color="rgba(255,255,255,0.7)" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.divider} />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
+      
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+          <View style={[styles.responsiveContainer, { width: contentWidth }]}>
+            
+            {/* Header Section */}
+            <View style={styles.headerSection}>
+              <View style={styles.headerRow}>
+                <TouchableOpacity style={styles.iconButton}>
+                  <MaterialIcons name="arrow-back-ios" size={20} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Journal</Text>
+                <TouchableOpacity style={styles.iconButton}>
+                  <MaterialIcons name="calendar-today" size={20} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+              </View>
+              
+              {/* Date Navigation */}
+              <View style={styles.dateNav}>
+                <TouchableOpacity style={styles.navButton}>
+                  <MaterialIcons name="chevron-left" size={24} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+                <Text style={styles.dateText}>Today, Oct 26</Text>
+                <TouchableOpacity style={styles.navButton}>
+                  <MaterialIcons name="chevron-right" size={24} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            <View style={styles.divider} />
+            
+            {/* Mood Section */}
             <Text style={styles.sectionTitle}>How are you feeling today?</Text>
             <ScrollView
               horizontal
@@ -75,6 +91,8 @@ export default function TrackScreen() {
                 />
               ))}
             </ScrollView>
+            
+            {/* Text Input Section */}
             <View style={styles.composerContainer}>
               <View style={styles.inputWrapper}>
                 <TextInput
@@ -87,129 +105,134 @@ export default function TrackScreen() {
                   onChangeText={setEntryText}
                   maxLength={1000}
                 />
+                
+                {/* Toolbar */}
                 <View style={styles.toolbar}>
                   <View style={styles.toolbarActions}>
                     <TouchableOpacity style={styles.toolButton}>
-                      <MaterialIcons name="image" size={22} color={COLORS.textSecondary} />
+                      <MaterialIcons name="image" size={24} color={COLORS.textSecondary} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.toolButton}>
-                      <MaterialIcons name="bar-chart" size={22} color={COLORS.textSecondary} />
+                      <MaterialIcons name="bar-chart" size={24} color={COLORS.textSecondary} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.toolButton}>
-                      <MaterialIcons name="location-on" size={22} color={COLORS.textSecondary} />
+                      <MaterialIcons name="location-on" size={24} color={COLORS.textSecondary} />
                     </TouchableOpacity>
                   </View>
                   <Text style={styles.charCount}>{entryText.length}/1000</Text>
                 </View>
               </View>
             </View>
-          </ScrollView>
-          <View style={styles.footer}>
+            
+          </View>
+        </ScrollView>
+        
+        {/* Footer with Save Button */}
+        <View style={styles.footerContainer}>
+          <View style={[styles.footer, { maxWidth: contentWidth }]}>
             <TouchableOpacity style={styles.saveButton} activeOpacity={0.8}>
               <Text style={styles.saveButtonText}>Save Journal Entry</Text>
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
-      </View>
-    </SafeAreaView>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
-  header: {
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingBottom: SPACING.m,
+  },
+  responsiveContainer: {
+    width: '100%',
+    paddingHorizontal: SPACING.m,
+  },
+  headerSection: {
+    width: '100%',
+    paddingTop: SPACING.l,
+    paddingBottom: SPACING.m,
+  },
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    backgroundColor: COLORS.backgroundDark,
+    marginBottom: SPACING.m,
   },
   iconButton: {
-    width: 48,
-    height: 48,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  calendarButton: {
-    width: 48,
-    height: 48,
-    alignItems: 'flex-end',
+    width: 40,
+    height: 40,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    color: COLORS.white,
-    fontSize: 18,
+    color: COLORS.text,
+    fontSize: 20,
     fontFamily: FONTS.bold,
   },
   dateNav: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
   },
   navButton: {
     padding: SPACING.xs,
-    borderRadius: 20,
   },
   dateText: {
-    color: COLORS.white,
+    color: COLORS.text,
     fontSize: 16,
     fontFamily: FONTS.medium,
   },
   divider: {
     height: 1,
     backgroundColor: COLORS.border,
-    marginHorizontal: SPACING.md,
-    marginTop: SPACING.xs,
-  },
-  scrollContent: {
-    flexGrow: 1,
+    width: '100%',
+    marginBottom: SPACING.m,
   },
   sectionTitle: {
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: COLORS.text,
     fontSize: 18,
     fontFamily: FONTS.bold,
-    paddingHorizontal: SPACING.md,
-    paddingTop: SPACING.lg,
-    paddingBottom: SPACING.sm,
+    marginBottom: SPACING.m,
+    width: '100%',
   },
   moodScroll: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    paddingBottom: SPACING.md,
+    paddingVertical: SPACING.s,
+    gap: SPACING.s,
+    paddingBottom: SPACING.l,
   },
   composerContainer: {
-    flex: 1,
-    paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.md,
-    minHeight: 300,
+    width: '100%',
+    marginTop: SPACING.s,
+    minHeight: 350,
   },
   inputWrapper: {
-    flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: '#1C1C1E',
     borderColor: COLORS.border,
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: SIZES.radius,
     overflow: 'hidden',
-    flexDirection: 'column',
+    minHeight: 350,
   },
   textInput: {
-    flex: 1,
-    color: 'rgba(255, 255, 255, 0.9)',
+    minHeight: 280,
+    color: COLORS.text,
     fontFamily: FONTS.regular,
     fontSize: 16,
-    padding: SPACING.md,
+    padding: SPACING.m,
     lineHeight: 24,
     textAlignVertical: 'top',
   },
@@ -219,36 +242,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    paddingHorizontal: SPACING.m,
+    paddingVertical: SPACING.m,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    minHeight: 56,
   },
   toolbarActions: {
     flexDirection: 'row',
-    gap: SPACING.xs,
+    alignItems: 'center',
+    gap: SPACING.m,
   },
   toolButton: {
-    padding: SPACING.sm,
+    padding: SPACING.s,
+    minWidth: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   charCount: {
     color: COLORS.textSecondary,
-    fontSize: 12,
-    fontFamily: FONTS.regular,
-    marginRight: SPACING.sm,
+    fontSize: 13,
+    fontFamily: FONTS.medium,
+    marginLeft: SPACING.m,
   },
-  footer: {
-    padding: SPACING.md,
-    backgroundColor: COLORS.backgroundDark,
+  footerContainer: {
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
   },
+  footer: {
+    width: '100%',
+    paddingHorizontal: SPACING.m,
+    paddingVertical: SPACING.m,
+  },
   saveButton: {
     backgroundColor: COLORS.primary,
-    height: 48,
-    borderRadius: 24,
+    height: 56,
+    borderRadius: SIZES.radiusFull,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   saveButtonText: {
     color: COLORS.white,
@@ -259,4 +299,3 @@ const styles = StyleSheet.create({
 });
 
 // This screen is now ready for journal/track tab usage.
-

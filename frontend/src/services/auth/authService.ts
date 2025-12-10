@@ -1,103 +1,206 @@
-// Mock Authentication Service
-// Simulates API calls for login, register, logout
+// Authentication Service
+// Handles API calls for authentication (login, register, logout, refresh)
 
-import { User, LoginCredentials, RegisterCredentials } from '@/types/auth';
+import { User, LoginCredentials, RegisterCredentials, ApiResponse, AuthResponse, RefreshTokenResponse } from '@/types/auth';
 import { storage } from './storage';
-
-// Mock user database (in production, this would be a backend API)
-const mockUsers: { [email: string]: { password: string; user: User } } = {
-  'demo@ballerpro.com': {
-    password: 'demo123',
-    user: {
-      id: '1',
-      email: 'demo@ballerpro.com',
-      name: 'Demo User',
-      isPremium: false,
-      onboardingCompleted: true,
-      createdAt: new Date().toISOString(),
-    },
-  },
-};
-
-// Simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+import apiClient from '../api/api';
+import API_CONFIG from '@/config/api';
 
 export const authService = {
-  /**
-   * Login with email and password
-   */
-  async login(credentials: LoginCredentials): Promise<User> {
-    console.log('[Auth] Login attempt:', credentials.email);
-    await delay(1000); // Simulate network delay
-
-    const userRecord = mockUsers[credentials.email.toLowerCase()];
-    
-    if (!userRecord) {
-      throw new Error('User not found');
-    }
-
-    if (userRecord.password !== credentials.password) {
-      throw new Error('Invalid password');
-    }
-
-    // Save to storage
-    await storage.saveToken('mock_token_' + Date.now());
-    await storage.saveUser(userRecord.user);
-
-    console.log('[Auth] Login successful:', userRecord.user.email);
-    return userRecord.user;
-  },
-
   /**
    * Register new user
    */
   async register(credentials: RegisterCredentials): Promise<User> {
-    console.log('[Auth] Register attempt:', credentials.email);
-    await delay(1000);
+    try {
+      console.log('[AuthService] Register attempt:', credentials.email);
+      
+      const response = await apiClient.post<ApiResponse<AuthResponse>>(
+        API_CONFIG.ENDPOINTS.AUTH.REGISTER,
+        {
+          email: credentials.email,
+          password: credentials.password,
+          name: credentials.name,
+        }
+      );
 
-    const emailLower = credentials.email.toLowerCase();
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || 'Registration failed');
+      }
 
-    if (mockUsers[emailLower]) {
-      throw new Error('Email already exists');
+      const { user: backendUser, token, refreshToken } = response.data.data;
+
+      // Transform backend user to app user format
+      const user: User = {
+        id: backendUser.id,
+        email: backendUser.email,
+        name: backendUser.name,
+        avatar: backendUser.avatar,
+        isEmailVerified: backendUser.isEmailVerified,
+        isPremium: false,
+        onboardingCompleted: false, // New users need onboarding
+        createdAt: backendUser.createdAt,
+      };
+
+      // Save tokens and user data
+      await storage.saveToken(token);
+      await storage.saveRefreshToken(refreshToken);
+      await storage.saveUser(user);
+
+      console.log('[AuthService] ✅ Registration successful:', user.email);
+      return user;
+    } catch (error: any) {
+      console.error('[AuthService] ❌ Registration error:', error);
+      
+      // Handle API error responses
+      if (error.response?.data) {
+        const apiError = error.response.data as ApiResponse;
+        
+        // Check for validation errors
+        if (apiError.errors && apiError.errors.length > 0) {
+          const errorMessages = apiError.errors
+            .map(err => err.message)
+            .join(', ');
+          throw new Error(errorMessages);
+        }
+        
+        throw new Error(apiError.message || 'Registration failed');
+      }
+      
+      // Handle network errors
+      if (error.message === 'Network Error') {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
+      }
+      
+      throw new Error(error.message || 'Registration failed. Please try again.');
     }
+  },
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      email: emailLower,
-      name: credentials.name,
-      isPremium: false,
-      onboardingCompleted: false, // New users need onboarding
-      createdAt: new Date().toISOString(),
-    };
+  /**
+   * Login with email and password
+   */
+  async login(credentials: LoginCredentials): Promise<User> {
+    try {
+      console.log('[AuthService] Login attempt:', credentials.email);
+      
+      const response = await apiClient.post<ApiResponse<AuthResponse>>(
+        API_CONFIG.ENDPOINTS.AUTH.LOGIN,
+        {
+          email: credentials.email,
+          password: credentials.password,
+        }
+      );
 
-    // Add to mock database
-    mockUsers[emailLower] = {
-      password: credentials.password,
-      user: newUser,
-    };
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || 'Login failed');
+      }
 
-    // Save to storage
-    await storage.saveToken('mock_token_' + Date.now());
-    await storage.saveUser(newUser);
+      const { user: backendUser, token, refreshToken } = response.data.data;
 
-    console.log('[Auth] Registration successful:', newUser.email);
-    return newUser;
+      // Transform backend user to app user format
+      const user: User = {
+        id: backendUser.id,
+        email: backendUser.email,
+        name: backendUser.name,
+        avatar: backendUser.avatar,
+        isEmailVerified: backendUser.isEmailVerified,
+        isPremium: false, // TODO: Get from backend when implemented
+        onboardingCompleted: true, // Existing users have completed onboarding
+        createdAt: backendUser.createdAt,
+      };
+
+      // Save tokens and user data
+      await storage.saveToken(token);
+      await storage.saveRefreshToken(refreshToken);
+      await storage.saveUser(user);
+
+      console.log('[AuthService] ✅ Login successful:', user.email);
+      return user;
+    } catch (error: any) {
+      console.error('[AuthService] ❌ Login error:', error);
+      
+      // Handle API error responses
+      if (error.response?.data) {
+        const apiError = error.response.data as ApiResponse;
+        
+        // Check for validation errors
+        if (apiError.errors && apiError.errors.length > 0) {
+          const errorMessages = apiError.errors
+            .map(err => err.message)
+            .join(', ');
+          throw new Error(errorMessages);
+        }
+        
+        throw new Error(apiError.message || 'Login failed');
+      }
+      
+      // Handle network errors
+      if (error.message === 'Network Error') {
+        throw new Error('Unable to connect to server. Please check your internet connection.');
+      }
+      
+      throw new Error(error.message || 'Login failed. Please try again.');
+    }
   },
 
   /**
    * Logout current user
    */
   async logout(): Promise<void> {
-    console.log('[Auth] Logout initiated');
-    await delay(300);
-    
-    await storage.clearAll();
-    
-    console.log('[Auth] Logout successful');
+    try {
+      console.log('[AuthService] Logout initiated');
+      
+      // Try to call logout endpoint (best effort - don't fail if it errors)
+      try {
+        await apiClient.post(API_CONFIG.ENDPOINTS.AUTH.LOGOUT);
+      } catch (error) {
+        console.warn('[AuthService] Logout endpoint failed (continuing anyway):', error);
+      }
+      
+      // Clear local data regardless of API call result
+      await storage.clearAll();
+      
+      console.log('[AuthService] ✅ Logout successful');
+    } catch (error) {
+      console.error('[AuthService] ❌ Logout error:', error);
+      // Clear storage even if logout fails
+      await storage.clearAll();
+    }
   },
 
   /**
-   * Get current authenticated user
+   * Refresh access token using refresh token
+   */
+  async refreshToken(): Promise<string> {
+    try {
+      console.log('[AuthService] Refreshing token...');
+      
+      const refreshToken = await storage.getRefreshToken();
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await apiClient.post<ApiResponse<RefreshTokenResponse>>(
+        API_CONFIG.ENDPOINTS.AUTH.REFRESH,
+        { refreshToken }
+      );
+
+      if (!response.data.success || !response.data.data) {
+        throw new Error(response.data.message || 'Token refresh failed');
+      }
+
+      const { token } = response.data.data;
+      await storage.saveToken(token);
+
+      console.log('[AuthService] ✅ Token refreshed successfully');
+      return token;
+    } catch (error: any) {
+      console.error('[AuthService] ❌ Token refresh error:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get current authenticated user from storage
    */
   async getCurrentUser(): Promise<User | null> {
     const user = await storage.getUser();
@@ -107,8 +210,23 @@ export const authService = {
       return null;
     }
 
-    console.log('[Auth] Current user:', user.email);
+    console.log('[AuthService] Current user:', user.email);
     return user;
+  },
+
+  /**
+   * Get access token
+   */
+  async getToken(): Promise<string | null> {
+    return await storage.getToken();
+  },
+
+  /**
+   * Clear authentication data
+   */
+  async clearAuth(): Promise<void> {
+    await storage.clearAll();
+    console.log('[AuthService] Authentication cleared');
   },
 
   /**
@@ -126,15 +244,10 @@ export const authService = {
       ...updates,
     };
 
-    // Update in mock database
-    if (mockUsers[currentUser.email]) {
-      mockUsers[currentUser.email].user = updatedUser;
-    }
-
     // Update storage
     await storage.saveUser(updatedUser);
 
-    console.log('[Auth] User updated:', updatedUser.email);
+    console.log('[AuthService] User updated:', updatedUser.email);
     return updatedUser;
   },
 
