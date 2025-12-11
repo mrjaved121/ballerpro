@@ -18,26 +18,33 @@ export default function Index() {
     const inAuthGroup = segments[0] === 'auth';
     const inOnboardingGroup = segments[0] === 'onboarding';
     const inTabsGroup = segments[0] === '(tabs)';
+    const inTabsIndex = segments.length === 2 && segments[0] === '(tabs)' && segments[1] === 'index';
+
+    // Only redirect if we're on the root index page itself
+    const onRootIndex = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
 
     if (!isAuthenticated) {
-      if (!inAuthGroup) {
+      if (!inAuthGroup && onRootIndex) {
         router.replace('/auth/login');
       }
     } else if (user) {
       if (user.onboardingCompleted === true) {
-        if (inAuthGroup || inOnboardingGroup || !inTabsGroup) {
-          // Use setTimeout to ensure state has propagated before navigation
+        // Only redirect if we're not already on tabs/index
+        if ((inAuthGroup || inOnboardingGroup || onRootIndex) && !inTabsIndex) {
+          // Navigate to tabs index explicitly to avoid 404
           setTimeout(() => {
-            router.replace('/(tabs)');
+            router.replace('/(tabs)/index');
           }, 100);
         }
       } else {
-        if (!inOnboardingGroup) {
+        if (!inOnboardingGroup && onRootIndex) {
           router.replace('/onboarding/about');
         }
       }
     } else {
-      router.replace('/auth/login');
+      if (onRootIndex) {
+        router.replace('/auth/login');
+      }
     }
   }, [isAuthenticated, user, isLoading, segments, router]);
 

@@ -36,7 +36,7 @@ export function useProtectedRoute(protectionType: ProtectionType) {
     if (protectionType === 'auth') {
       if (isAuthenticated && user) {
         if (user.onboardingCompleted === true) {
-          router.replace('/(tabs)/index');
+          router.replace('/(tabs)');
         } else {
           router.replace('/onboarding/about');
         }
@@ -50,7 +50,7 @@ export function useProtectedRoute(protectionType: ProtectionType) {
         // User has completed onboarding - redirect to main app
         setTimeout(() => {
           if (segments[0] === 'onboarding') {
-            router.replace('/(tabs)/index');
+            router.replace('/(tabs)');
           }
         }, 500);
       }

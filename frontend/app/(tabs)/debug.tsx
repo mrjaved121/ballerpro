@@ -95,7 +95,13 @@ export default function DebugScreen() {
 
   const handlePress = (route: string) => {
     try {
-      router.push(route as any);
+      // For tabs routes, use replace to avoid navigation stack issues
+      // For routes outside tabs, use push
+      if (route.startsWith('/(tabs)/')) {
+        router.replace(route as any);
+      } else {
+        router.push(route as any);
+      }
     } catch (error) {
       console.error(`Failed to navigate to ${route}:`, error);
     }

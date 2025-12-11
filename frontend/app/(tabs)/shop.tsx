@@ -3,11 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   FlatList,
   StatusBar,
+  useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
 import CategoryFilter from '@/components/ui/CategoryFilter';
@@ -76,16 +77,20 @@ const PRODUCTS: Product[] = [
 export default function ShopScreen() {
   const [selectedCategory, setSelectedCategory] = useState('1');
   const cartCount = 2;
+  const { width } = useWindowDimensions();
+  const isTablet = width > 768;
+  const contentWidth = isTablet ? SIZES.containerMaxWidth : '100%';
+  const insets = useSafeAreaInsets();
 
   const handleProductPress = (item: Product) => {
     console.log('Product pressed:', item.name);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: SPACING.s + insets.top }]}>
         <TouchableOpacity style={styles.iconButton}>
           <MaterialIcons name="arrow-back" size={24} color={COLORS.text} />
         </TouchableOpacity>
@@ -116,7 +121,10 @@ export default function ShopScreen() {
         )}
         numColumns={2}
         columnWrapperStyle={styles.columnWrapper}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { width: contentWidth, alignSelf: 'center' },
+        ]}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
@@ -133,8 +141,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.l,
-    paddingVertical: SPACING.s,
-    backgroundColor: 'rgba(18, 18, 18, 0.9)',
+    paddingBottom: SPACING.s,
+    backgroundColor: COLORS.background,
   },
   headerTitle: {
     color: COLORS.text,
@@ -173,6 +181,6 @@ const styles = StyleSheet.create({
   },
   columnWrapper: {
     justifyContent: 'space-between',
-    gap: SPACING.l,
+    marginBottom: SPACING.s,
   },
 });

@@ -68,9 +68,9 @@ export default function OnboardingStep4() {
       
       await completeOnboarding();
       
-      // Navigate to root - index.tsx will detect onboarding completion and redirect to home
+      // Navigate to tabs root; tabs layout will land on home
       setTimeout(() => {
-        router.replace('/');
+        router.replace('/(tabs)');
       }, 400);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to complete. Please try again.';

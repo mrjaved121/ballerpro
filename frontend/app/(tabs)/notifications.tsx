@@ -4,12 +4,13 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
-  StatusBar
+  StatusBar,
+  useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { COLORS, FONTS, SPACING } from '@/constants/theme';
+import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
 import NotificationRow from '@/components/ui/NotificationRow';
 import { NotificationItem } from '@/types/notification';
 
@@ -51,6 +52,10 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 
 export default function NotificationsScreen() {
   const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const { width } = useWindowDimensions();
+  const isTablet = width > 768;
+  const contentWidth = isTablet ? SIZES.containerMaxWidth : '100%';
+  const insets = useSafeAreaInsets();
 
   const handlePress = (id: string) => {
     setNotifications(prev => prev.map(item =>
@@ -63,10 +68,10 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: SPACING.s + insets.top }]}>
         <TouchableOpacity style={styles.backButton}>
           {/* Back button, inactive for now */}
           <MaterialIcons name="arrow-back-ios-new" size={20} color="transparent" />
@@ -83,7 +88,10 @@ export default function NotificationsScreen() {
         renderItem={({ item }) => (
           <NotificationRow item={item} onPress={handlePress} />
         )}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          { width: contentWidth, alignSelf: 'center', paddingTop: SPACING.s },
+        ]}
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
@@ -100,10 +108,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.l,
-    paddingVertical: SPACING.m,
+    paddingBottom: SPACING.m,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.whiteTint,
-    backgroundColor: 'rgba(18, 18, 18, 0.95)',
+    backgroundColor: COLORS.background,
   },
   backButton: {
     width: 40,

@@ -52,7 +52,13 @@ export default function DebugTesterScreen() {
 
   const navigateTo = (route: string) => {
     console.log('[DebugTester] Navigating to:', route);
-    router.push(route as any);
+    // For tabs routes, use replace to avoid navigation stack issues
+    // For routes outside tabs, use push
+    if (route.startsWith('/(tabs)/')) {
+      router.replace(route as any);
+    } else {
+      router.push(route as any);
+    }
   };
 
   const groupedRoutes = TEST_ROUTES.reduce((acc, route) => {
