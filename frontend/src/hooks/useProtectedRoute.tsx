@@ -48,11 +48,9 @@ export function useProtectedRoute(protectionType: ProtectionType) {
         router.replace('/auth/login');
       } else if (user && user.onboardingCompleted === true && !allowOnboardingPreview) {
         // User has completed onboarding - redirect to main app
-        setTimeout(() => {
-          if (segments[0] === 'onboarding') {
-            router.replace('/(tabs)');
-          }
-        }, 500);
+        if (segments[0] === 'onboarding') {
+          router.replace('/(tabs)');
+        }
       }
     }
 

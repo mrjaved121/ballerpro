@@ -31,10 +31,7 @@ export default function Index() {
       if (user.onboardingCompleted === true) {
         // Only redirect if we're not already on tabs/index
         if ((inAuthGroup || inOnboardingGroup || onRootIndex) && !inTabsIndex) {
-          // Navigate to tabs index explicitly to avoid 404
-          setTimeout(() => {
-            router.replace('/(tabs)/index');
-          }, 100);
+          router.replace('/(tabs)/index');
         }
       } else {
         if (!inOnboardingGroup && onRootIndex) {

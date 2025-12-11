@@ -69,9 +69,7 @@ export default function OnboardingStep4() {
       await completeOnboarding();
       
       // Navigate to tabs root; tabs layout will land on home
-      setTimeout(() => {
-        router.replace('/(tabs)');
-      }, 400);
+      router.replace('/(tabs)');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to complete. Please try again.';
       setError(errorMessage);
