@@ -4,7 +4,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, LoginCredentials, RegisterCredentials, OnboardingData } from '@/types/auth';
 import { authService } from '@/services/auth/authService';
+import { authServiceFirebase } from '@/services/auth/authServiceFirebase';
 import { storage } from '@/services/auth/storage';
+import { USE_FIREBASE_AUTH } from '@/config/featureFlags';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -64,7 +66,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      const user = await authService.login(credentials);
+      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
+      const user = await service.login(credentials);
       setState({
         user,
         isAuthenticated: true,
@@ -78,7 +81,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (credentials: RegisterCredentials) => {
     try {
-      const user = await authService.register(credentials);
+      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
+      const user = await service.register(credentials);
       setState({
         user,
         isAuthenticated: true,
@@ -92,7 +96,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      await authService.logout();
+      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
+      await service.logout();
       setState({
         user: null,
         isAuthenticated: false,
@@ -120,9 +125,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const completeOnboarding = async () => {
     try {
-      
+      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
       // Update user state to mark onboarding as complete
-      const updatedUser = await authService.completeOnboarding();
+      const updatedUser = await service.completeOnboarding();
       await storage.removeOnboardingData();
       
       setState(prev => ({
@@ -139,7 +144,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUser = async () => {
     try {
-      const user = await authService.getCurrentUser();
+      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
+      const user = await service.getCurrentUser();
       if (user) {
         setState(prev => ({ ...prev, user }));
       }
