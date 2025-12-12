@@ -63,7 +63,38 @@ export default function RegisterScreen() {
         router.replace('/');
       }, 300);
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to register. Please try again.';
+      console.error('[Register] Error:', err);
+      // Extract more detailed error message
+      let errorMessage = 'Failed to register. Please try again.';
+      
+      if (err.code) {
+        // Firebase error codes
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'This email is already registered. Please login instead.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'Invalid email address. Please check your email.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'Password is too weak. Please use a stronger password.';
+            break;
+          case 'auth/configuration-not-found':
+            errorMessage = 'Firebase configuration error. Please check SHA fingerprints are added in Firebase Console.';
+            break;
+          case 'auth/network-request-failed':
+            errorMessage = 'Network error. Please check your internet connection.';
+            break;
+          case 'permission-denied':
+            errorMessage = 'Permission denied. Please check Firestore security rules.';
+            break;
+          default:
+            errorMessage = err.message || err.code || 'Failed to register. Please try again.';
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
       setError(errorMessage);
       Alert.alert('Registration Failed', errorMessage);
     } finally {
