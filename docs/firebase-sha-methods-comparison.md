@@ -98,3 +98,5 @@ npx eas-cli credentials -p android
 
 The Java JDK method works, but it's overkill for just getting SHA fingerprints when EAS can do it in seconds.
 
+
+

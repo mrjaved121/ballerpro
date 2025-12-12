@@ -1,7 +1,9 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // Firebase client configuration (non-secret, safe to keep in client)
 const firebaseConfig = {
@@ -15,9 +17,27 @@ const firebaseConfig = {
 };
 
 // Ensure we don’t re-initialize in fast-refresh / multi-import scenarios
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const firebaseAuth = getAuth(app);
+// Use React Native persistence so auth survives reloads in Expo
+let firebaseAuthInstance;
+if (Platform.OS === 'web') {
+  firebaseAuthInstance = getAuth(app);
+} else {
+  try {
+    // If auth was already initialized, reuse it
+    firebaseAuthInstance = getAuth(app);
+  } catch (err) {
+    // ignore and initialize below
+  }
+  if (!firebaseAuthInstance) {
+    firebaseAuthInstance = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  }
+}
+
+export const firebaseAuth = firebaseAuthInstance;
 export const firebaseDb = getFirestore(app);
 export const firebaseStorage = getStorage(app);
 export default app;

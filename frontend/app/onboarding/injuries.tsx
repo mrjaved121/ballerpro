@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { InjuryChip } from '../../src/components/ui/InjuryChip';
 import { Button } from '../../src/components/Button';
-import { onboardingService } from '../../src/services/onboarding/onboardingService';
+// TODO: Add Firebase onboarding service import here
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -62,11 +62,13 @@ export default function OnboardingStep3() {
       setIsLoading(true);
       setError(null);
       
-      await onboardingService.saveStep4({
-        injuries: Array.from(selectedInjuries),
-        otherDetails: otherDetails.trim(),
+      // TODO: Add Firebase save step4 logic here
+      console.log('Step 4 data:', { 
+        injuries: Array.from(selectedInjuries), 
+        otherDetails: otherDetails.trim() 
       });
       
+      // For now, just navigate - Firebase logic will be added
       router.push('/onboarding/mainGoal');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';
@@ -78,7 +80,13 @@ export default function OnboardingStep3() {
   };
 
   const handleBack = () => {
-    router.back();
+    const canGoBack = (router as any).canGoBack?.() ?? false;
+
+    if (canGoBack) {
+      router.back();
+    } else {
+      router.replace('/onboarding/trainingExperience');
+    }
   };
 
   return (

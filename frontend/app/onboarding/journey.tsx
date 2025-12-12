@@ -16,7 +16,7 @@ import JourneyGoalCard from '@/components/ui/JourneyGoalCard';
 import SelectionButton from '@/components/ui/SelectionButton';
 import { GoalOption, ExperienceLevel } from '@/types/onboarding';
 import { useAuth } from '@/contexts/AuthContext';
-import { onboardingService } from '@/services/onboarding/onboardingService';
+// TODO: Add Firebase onboarding service import here
 
 // Mock Data
 const GOALS: GoalOption[] = [
@@ -53,10 +53,8 @@ export default function JourneyScreen() {
     try {
       setIsNavigating(true);
       
-      await onboardingService.saveStep2({ 
-        goal: selectedGoal,
-        trainingLevel: selectedLevel
-      });
+      // TODO: Add Firebase save step2 logic here
+      console.log('Step 2 data:', { goal: selectedGoal, trainingLevel: selectedLevel });
       
       await updateOnboardingData({ 
         goals: [selectedGoal],
@@ -71,7 +69,13 @@ export default function JourneyScreen() {
   };
 
   const handleBack = () => {
-    router.back();
+    const canGoBack = (router as any).canGoBack?.() ?? false;
+
+    if (canGoBack) {
+      router.back();
+    } else {
+      router.replace('/onboarding/about');
+    }
   };
 
   return (

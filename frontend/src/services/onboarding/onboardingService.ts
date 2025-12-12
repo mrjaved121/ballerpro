@@ -3,6 +3,8 @@
 import { USE_FIREBASE_AUTH } from '@/config/featureFlags';
 import { setUserDoc, getUserDoc } from '@/services/firebaseUser';
 import { firebaseAuth } from '@/services/firebase';
+import { storage } from '../auth/storage';
+import { FirestoreError } from 'firebase/firestore';
 
 export interface Step1Data {
   gender?: string;
@@ -21,14 +23,34 @@ export interface OnboardingData {
 }
 
 class OnboardingService {
-  private async saveToFirestore(partial: Partial<OnboardingData>): Promise<OnboardingData> {
+  private async getUid(): Promise<string> {
+    // Prefer live Firebase auth user
     const currentUser = firebaseAuth.currentUser;
-    if (!currentUser) throw new Error('Not authenticated');
-    const uid = currentUser.uid;
+    if (currentUser?.uid) return currentUser.uid;
 
-    // Fetch existing onboarding to merge
-    const existing = await getUserDoc(uid);
-    const existingOnboarding = existing?.onboarding || {};
+    // Fallback to stored user (covers cases where Firebase hasn't rehydrated yet)
+    const storedUser = await storage.getUser();
+    if (storedUser?.id) return storedUser.id;
+
+    throw new Error('Not authenticated');
+  }
+
+  private async saveToFirestore(partial: Partial<OnboardingData>): Promise<OnboardingData> {
+    const uid = await this.getUid();
+
+    // Fetch existing onboarding to merge (tolerate offline by treating as empty)
+    let existingOnboarding: OnboardingData = {};
+    try {
+      const existing = await getUserDoc(uid);
+      existingOnboarding = (existing?.onboarding as OnboardingData) || {};
+    } catch (err: any) {
+      const code = (err as FirestoreError)?.code;
+      const msg = err?.message || '';
+      const offline = code === 'unavailable' || msg.toLowerCase().includes('offline');
+      if (!offline) {
+        throw err;
+      }
+    }
 
     const merged = {
       ...existingOnboarding,
@@ -95,17 +117,25 @@ class OnboardingService {
 
   async getStatus(): Promise<OnboardingData> {
     if (!USE_FIREBASE_AUTH) throw new Error('Firebase mode required');
-    const currentUser = firebaseAuth.currentUser;
-    if (!currentUser) throw new Error('Not authenticated');
-    const doc = await getUserDoc(currentUser.uid);
-    return doc?.onboarding || {};
+    const uid = await this.getUid();
+    try {
+      const doc = await getUserDoc(uid);
+      return (doc?.onboarding as OnboardingData) || {};
+    } catch (err: any) {
+      const code = (err as FirestoreError)?.code;
+      const msg = err?.message || '';
+      const offline = code === 'unavailable' || msg.toLowerCase().includes('offline');
+      if (offline) {
+        return {};
+      }
+      throw err;
+    }
   }
 
   async reset(): Promise<void> {
     if (!USE_FIREBASE_AUTH) throw new Error('Firebase mode required');
-    const currentUser = firebaseAuth.currentUser;
-    if (!currentUser) throw new Error('Not authenticated');
-    await setUserDoc(currentUser.uid, {
+    const uid = await this.getUid();
+    await setUserDoc(uid, {
       onboarding: {
         completed: false,
         completedAt: null,

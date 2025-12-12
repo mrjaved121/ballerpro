@@ -1,12 +1,9 @@
 // Authentication Context Provider
-// Manages global auth state and provides auth methods to the app
+// Simplified - only manages state, no backend calls
+// Firebase logic will be added step by step
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, LoginCredentials, RegisterCredentials, OnboardingData } from '@/types/auth';
-import { authService } from '@/services/auth/authService';
-import { authServiceFirebase } from '@/services/auth/authServiceFirebase';
-import { storage } from '@/services/auth/storage';
-import { USE_FIREBASE_AUTH } from '@/config/featureFlags';
 
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
@@ -27,131 +24,65 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [state, setState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
-    isLoading: true,
+    isLoading: true, // Start as true to prevent premature navigation
   });
 
-  // Initialize auth state on app launch
+  // Initialize - just mark as loaded (no backend calls)
   useEffect(() => {
-    initializeAuth();
+    // Small delay to ensure router is mounted
+    const timer = setTimeout(() => {
+      setState(prev => ({ ...prev, isLoading: false }));
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
-  const initializeAuth = async () => {
-    try {
-      const user = await authService.getCurrentUser();
-      const onboardingData = await storage.getOnboardingData();
-
-      if (user) {
-        setState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-          onboardingData: onboardingData || undefined,
-        });
-      } else {
-        setState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-      }
-    } catch (error) {
-      console.error('[AuthContext] Initialization error:', error);
-      setState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    }
-  };
-
   const login = async (credentials: LoginCredentials) => {
-    try {
-      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
-      const user = await service.login(credentials);
-      setState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('[AuthContext] Login error:', error);
-      throw error;
-    }
+    // TODO: Add Firebase login logic here
+    console.log('[AuthContext] Login called with:', credentials);
+    throw new Error('Login not implemented yet - add Firebase logic');
   };
 
   const register = async (credentials: RegisterCredentials) => {
-    try {
-      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
-      const user = await service.register(credentials);
-      setState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('[AuthContext] Register error:', error);
-      throw error;
-    }
+    // TODO: Add Firebase register logic here
+    console.log('[AuthContext] Register called with:', credentials);
+    throw new Error('Register not implemented yet - add Firebase logic');
   };
 
   const logout = async () => {
-    try {
-      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
-      await service.logout();
-      setState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        onboardingData: undefined,
-      });
-    } catch (error) {
-      console.error('[AuthContext] Logout error:', error);
-      throw error;
-    }
+    // TODO: Add Firebase logout logic here
+    console.log('[AuthContext] Logout called');
+    setState({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+      onboardingData: undefined,
+    });
   };
 
   const updateOnboardingData = async (data: Partial<OnboardingData>) => {
+    // TODO: Add Firebase onboarding data save logic here
+    console.log('[AuthContext] Update onboarding data:', data);
     const currentData = state.onboardingData || {};
     const updatedData = { ...currentData, ...data };
-    
-    await storage.saveOnboardingData(updatedData);
-    
     setState(prev => ({
       ...prev,
       onboardingData: updatedData,
     }));
-    
   };
 
   const completeOnboarding = async () => {
-    try {
-      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
-      // Update user state to mark onboarding as complete
-      const updatedUser = await service.completeOnboarding();
-      await storage.removeOnboardingData();
-      
-      setState(prev => ({
-        ...prev,
-        user: updatedUser,
-        onboardingData: undefined,
-      }));
-      
-    } catch (error) {
-      console.error('[AuthContext] Complete onboarding error:', error);
-      throw error;
-    }
+    // TODO: Add Firebase complete onboarding logic here
+    console.log('[AuthContext] Complete onboarding called');
+    setState(prev => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, onboardingCompleted: true } : null,
+      onboardingData: undefined,
+    }));
   };
 
   const refreshUser = async () => {
-    try {
-      const service = USE_FIREBASE_AUTH ? authServiceFirebase : authService;
-      const user = await service.getCurrentUser();
-      if (user) {
-        setState(prev => ({ ...prev, user }));
-      }
-    } catch (error) {
-      console.error('[AuthContext] Refresh user error:', error);
-    }
+    // TODO: Add Firebase refresh user logic here
+    console.log('[AuthContext] Refresh user called');
   };
 
   return (

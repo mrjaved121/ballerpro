@@ -11,7 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { Button } from '../../src/components/Button';
-import { onboardingService } from '../../src/services/onboarding/onboardingService';
+// TODO: Add Firebase onboarding service import here
+import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -21,6 +22,7 @@ type Gender = 'male' | 'female' | 'other';
 
 export default function OnboardingStep1() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [selectedGender, setSelectedGender] = useState<Gender | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,10 +37,10 @@ export default function OnboardingStep1() {
       setIsLoading(true);
       setError(null);
       
-      await onboardingService.saveStep1({
-        gender: selectedGender,
-      });
+      // TODO: Add Firebase save step1 logic here
+      console.log('Step 1 data:', { gender: selectedGender });
       
+      // For now, just navigate - Firebase logic will be added
       router.push('/onboarding/journey');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';
@@ -49,8 +51,17 @@ export default function OnboardingStep1() {
     }
   };
 
-  const handleBack = () => {
-    router.back();
+  const handleBack = async () => {
+    try {
+      // Step 1 is the first onboarding step, so sign out and go back to login
+      // This prevents the auth protection from redirecting back to onboarding
+      await logout();
+      router.replace('/auth/login');
+    } catch (err) {
+      console.error('[Onboarding Step 1] Logout error:', err);
+      // Even if logout fails, try to navigate to login
+      router.replace('/auth/login');
+    }
   };
 
   return (

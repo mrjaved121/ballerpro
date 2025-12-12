@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { GoalCard } from '../../src/components/ui/GoalCard';
 import { Button } from '../../src/components/Button';
-import { onboardingService } from '../../src/services/onboarding/onboardingService';
+// TODO: Add Firebase onboarding service import here
 import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
@@ -58,10 +58,8 @@ export default function OnboardingStep4() {
       setIsLoading(true);
       setError(null);
       
-      // Save step 5 to onboarding service (this marks onboarding complete on backend)
-      await onboardingService.saveStep5({
-        goal: selectedGoal,
-      });
+      // TODO: Add Firebase save step5 and complete onboarding logic here
+      console.log('Step 5 data:', { goal: selectedGoal });
       
       // Save goal to auth context
       await updateOnboardingData({ goals: [selectedGoal] });
@@ -79,7 +77,13 @@ export default function OnboardingStep4() {
   };
 
   const handleBack = () => {
-    router.back();
+    const canGoBack = (router as any).canGoBack?.() ?? false;
+
+    if (canGoBack) {
+      router.back();
+    } else {
+      router.replace('/onboarding/injuries');
+    }
   };
 
   return (

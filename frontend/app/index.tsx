@@ -11,38 +11,44 @@ export default function Index() {
   const segments = useSegments();
 
   useEffect(() => {
+    // Don't navigate until loading is complete and router is ready
     if (isLoading) {
       return;
     }
 
-    const inAuthGroup = segments[0] === 'auth';
-    const inOnboardingGroup = segments[0] === 'onboarding';
-    const inTabsGroup = segments[0] === '(tabs)';
-    const inTabsIndex = segments.length === 2 && segments[0] === '(tabs)' && segments[1] === 'index';
+    // Small delay to ensure router is fully mounted
+    const timer = setTimeout(() => {
+      const inAuthGroup = segments[0] === 'auth';
+      const inOnboardingGroup = segments[0] === 'onboarding';
+      const inTabsGroup = segments[0] === '(tabs)';
+      const inTabsIndex = segments.length === 2 && segments[0] === '(tabs)' && segments[1] === 'index';
 
-    // Only redirect if we're on the root index page itself
-    const onRootIndex = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
+      // Only redirect if we're on the root index page itself
+      const onRootIndex = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
 
-    if (!isAuthenticated) {
-      if (!inAuthGroup && onRootIndex) {
-        router.replace('/auth/login');
-      }
-    } else if (user) {
-      if (user.onboardingCompleted === true) {
-        // Only redirect if we're not already on tabs/index
-        if ((inAuthGroup || inOnboardingGroup || onRootIndex) && !inTabsIndex) {
-          router.replace('/(tabs)/index');
+      if (!isAuthenticated) {
+        if (!inAuthGroup && onRootIndex) {
+          router.replace('/auth/login');
+        }
+      } else if (user) {
+        if (user.onboardingCompleted === true) {
+          // Only redirect if we're not already on tabs/index
+          if ((inAuthGroup || inOnboardingGroup || onRootIndex) && !inTabsIndex) {
+            router.replace('/(tabs)/index');
+          }
+        } else {
+          if (!inOnboardingGroup && onRootIndex) {
+            router.replace('/onboarding/about');
+          }
         }
       } else {
-        if (!inOnboardingGroup && onRootIndex) {
-          router.replace('/onboarding/about');
+        if (onRootIndex) {
+          router.replace('/auth/login');
         }
       }
-    } else {
-      if (onRootIndex) {
-        router.replace('/auth/login');
-      }
-    }
+    }, 200);
+
+    return () => clearTimeout(timer);
   }, [isAuthenticated, user, isLoading, segments, router]);
 
   // Show loading spinner while checking auth state

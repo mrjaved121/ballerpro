@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { SelectionCard } from '../../src/components/ui/SelectionCard';
 import { Button } from '../../src/components/Button';
-import { onboardingService } from '../../src/services/onboarding/onboardingService';
+// TODO: Add Firebase onboarding service import here
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -30,10 +30,10 @@ export default function OnboardingStep2() {
       setIsLoading(true);
       setError(null);
       
-      await onboardingService.saveStep3({
-        experienceLevel: selectedLevel,
-      });
+      // TODO: Add Firebase save step3 logic here
+      console.log('Step 3 data:', { experienceLevel: selectedLevel });
       
+      // For now, just navigate - Firebase logic will be added
       router.push('/onboarding/injuries');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';
@@ -45,7 +45,13 @@ export default function OnboardingStep2() {
   };
 
   const handleBack = () => {
-    router.back();
+    const canGoBack = (router as any).canGoBack?.() ?? false;
+
+    if (canGoBack) {
+      router.back();
+    } else {
+      router.replace('/onboarding/journey');
+    }
   };
 
   return (

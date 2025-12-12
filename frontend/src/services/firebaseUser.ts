@@ -29,16 +29,34 @@ export type FirestoreUser = {
 
 const userDocRef = (uid: string) => doc(firebaseDb, 'users', uid);
 
+// Remove any undefined values so Firestore setDoc doesn't error
+const removeUndefined = (value: any): any => {
+  if (Array.isArray(value)) {
+    return value.map(removeUndefined);
+  }
+  if (value && typeof value === 'object') {
+    const cleaned: Record<string, any> = {};
+    Object.entries(value).forEach(([k, v]) => {
+      if (v !== undefined) {
+        cleaned[k] = removeUndefined(v);
+      }
+    });
+    return cleaned;
+  }
+  return value;
+};
+
 export const getUserDoc = async (uid: string) => {
   const snap = await getDoc(userDocRef(uid));
   return snap.exists() ? snap.data() : null;
 };
 
 export const setUserDoc = async (uid: string, data: Partial<FirestoreUser>) => {
+  const cleaned = removeUndefined(data) as Partial<FirestoreUser>;
   await setDoc(
     userDocRef(uid),
     {
-      ...data,
+      ...cleaned,
       updatedAt: serverTimestamp(),
       createdAt: serverTimestamp(), // Firestore will keep original once set
     },
