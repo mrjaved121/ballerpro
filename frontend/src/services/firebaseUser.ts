@@ -47,20 +47,66 @@ const removeUndefined = (value: any): any => {
 };
 
 export const getUserDoc = async (uid: string) => {
-  const snap = await getDoc(userDocRef(uid));
-  return snap.exists() ? snap.data() : null;
+  try {
+    const snap = await getDoc(userDocRef(uid));
+    return snap.exists() ? snap.data() : null;
+  } catch (error) {
+    console.error('[firebaseUser] getUserDoc error:', error);
+    throw error;
+  }
 };
 
 export const setUserDoc = async (uid: string, data: Partial<FirestoreUser>) => {
-  const cleaned = removeUndefined(data) as Partial<FirestoreUser>;
-  await setDoc(
-    userDocRef(uid),
-    {
+  try {
+    // Remove undefined values (but preserve serverTimestamp() FieldValue objects)
+    // serverTimestamp() returns a FieldValue which is not undefined, so it's preserved
+    const cleaned = removeUndefined(data) as Partial<FirestoreUser>;
+    
+    // Add timeout warning for setDoc (10 seconds)
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error('setDoc timeout after 10s'));
+      }, 10000);
+    });
+    
+    // Prepare data with serverTimestamp for timestamps
+    // Note: serverTimestamp() returns a FieldValue that Firestore will convert server-side
+    const dataToWrite: any = {
       ...cleaned,
-      updatedAt: serverTimestamp(),
-      createdAt: serverTimestamp(), // Firestore will keep original once set
-    },
-    { merge: true }
-  );
+      updatedAt: serverTimestamp(), // Always update updatedAt
+    };
+    
+    // Only set createdAt if it doesn't exist (preserve original creation time)
+    if (!cleaned.createdAt) {
+      dataToWrite.createdAt = serverTimestamp();
+    }
+    
+    // Atomic write with merge: true to prevent overwriting existing fields
+    // merge: true ensures we only update specified fields, not replace entire document
+    const setDocPromise = setDoc(
+      userDocRef(uid),
+      dataToWrite,
+      { merge: true } // Critical: prevents overwriting other user fields
+    );
+    
+    // Race against timeout to detect slow writes
+    await Promise.race([setDocPromise, timeoutPromise]).catch((error: any) => {
+      if (error?.message?.includes('timeout')) {
+        console.warn('[firebaseUser] setDoc timeout warning:', {
+          uid,
+          dataKeys: Object.keys(cleaned),
+          timestamp: new Date().toISOString(),
+        });
+      }
+      throw error;
+    });
+  } catch (error) {
+    console.error('[firebaseUser] setUserDoc error:', {
+      uid,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorCode: (error as any)?.code,
+    });
+    throw error;
+  }
 };
 

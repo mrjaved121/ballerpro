@@ -16,7 +16,7 @@ import JourneyGoalCard from '@/components/ui/JourneyGoalCard';
 import SelectionButton from '@/components/ui/SelectionButton';
 import { GoalOption, ExperienceLevel } from '@/types/onboarding';
 import { useAuth } from '@/contexts/AuthContext';
-// TODO: Add Firebase onboarding service import here
+import { useOnboarding } from '@/contexts/OnboardingContext';
 
 // Mock Data
 const GOALS: GoalOption[] = [
@@ -36,6 +36,7 @@ const LEVELS: ExperienceLevel[] = [
 export default function JourneyScreen() {
   const router = useRouter();
   const { updateOnboardingData } = useAuth();
+  const { updateStep2 } = useOnboarding();
   const [selectedGoal, setSelectedGoal] = useState<string>('muscle');
   const [selectedLevel, setSelectedLevel] = useState<string>('endurance_runner');
   const [isNavigating, setIsNavigating] = useState(false);
@@ -53,8 +54,11 @@ export default function JourneyScreen() {
     try {
       setIsNavigating(true);
       
-      // TODO: Add Firebase save step2 logic here
-      console.log('Step 2 data:', { goal: selectedGoal, trainingLevel: selectedLevel });
+      // Store Step 2 data locally (not saved to Firebase yet)
+      updateStep2({ 
+        goal: selectedGoal,
+        trainingLevel: selectedLevel
+      });
       
       await updateOnboardingData({ 
         goals: [selectedGoal],

@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { InjuryChip } from '../../src/components/ui/InjuryChip';
 import { Button } from '../../src/components/Button';
-// TODO: Add Firebase onboarding service import here
+import { useOnboarding } from '../../src/contexts/OnboardingContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -33,6 +33,7 @@ const INJURY_TYPES: InjuryType[] = [
 
 export default function OnboardingStep3() {
   const router = useRouter();
+  const { updateStep4 } = useOnboarding();
   const [selectedInjuries, setSelectedInjuries] = useState<Set<InjuryType>>(
     new Set(['Knees', 'Hips'])
   );
@@ -62,13 +63,12 @@ export default function OnboardingStep3() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Add Firebase save step4 logic here
-      console.log('Step 4 data:', { 
-        injuries: Array.from(selectedInjuries), 
-        otherDetails: otherDetails.trim() 
+      // Store Step 4 data locally (not saved to Firebase yet)
+      updateStep4({
+        injuries: Array.from(selectedInjuries),
+        otherDetails: otherDetails.trim(),
       });
       
-      // For now, just navigate - Firebase logic will be added
       router.push('/onboarding/mainGoal');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';

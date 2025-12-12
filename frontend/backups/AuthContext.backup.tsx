@@ -1,5 +1,7 @@
 // Authentication Context Provider
 // Firebase-based authentication
+// BACKUP CREATED: Production Migration Preparation
+// DO NOT MODIFY - This is a backup of the current working version
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState, LoginCredentials, RegisterCredentials, OnboardingData } from '@/types/auth';
@@ -290,7 +292,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       console.log('[AuthContext] signup-success:', { uid: user.id, email: user.email });
-      console.log('[AuthContext] signup-success-navigation: User registered, will navigate to onboarding');
       isProcessingAuth.current = false;
       return user;
     } catch (error: any) {
@@ -368,17 +369,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   /**
-   * Complete onboarding - saves all onboarding data to Firestore in one atomic operation
+   * Complete onboarding - saves all onboarding data to Firestore at once
    * This is called only at the end of step 5
-   * 
-   * Requirements:
-   * - Saves all steps (1-5) in one atomic operation
-   * - Uses serverTimestamp() for completedAt (server-side timestamp)
-   * - Uses merge: true to prevent overwriting other user fields
-   * - Guards against duplicate writes with isSavingOnboarding flag
-   * - Only navigates after successful write
-   * 
-   * @param onboardingData - All onboarding steps data (1-5)
+   * @param onboardingData - All onboarding steps data
    */
   const completeOnboarding = async (onboardingData: {
     step1?: { gender: string };
@@ -387,109 +380,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     step4?: { injuries: string[]; otherDetails: string };
     step5?: { goal: string };
   }) => {
-    // Guard: prevent concurrent saves (duplicate write protection)
+    // Guard: prevent concurrent saves
     if (isSavingOnboarding.current) {
-      console.warn('[AuthContext] completeOnboarding: Already saving, skipping duplicate write');
-      throw new Error('Onboarding save already in progress');
-    }
-
-    const currentUser = firebaseAuth.currentUser;
-    if (!currentUser) {
-      const error = new Error('User not authenticated');
-      console.error('[AuthContext] onboarding-write-failed:', { error: error.message, step: 'auth-check' });
-      throw error;
+      console.warn('[AuthContext] completeOnboarding: Already saving, skipping');
+      return;
     }
 
     try {
       isSavingOnboarding.current = true;
-      
-      // Log start with detailed information
       console.log('[AuthContext] onboarding-write-start:', { 
-        uid: currentUser.uid,
-        email: currentUser.email,
-        steps: Object.keys(onboardingData),
-        stepCount: Object.keys(onboardingData).length,
-        timestamp: new Date().toISOString()
+        uid: firebaseAuth.currentUser?.uid,
+        steps: Object.keys(onboardingData)
       });
 
-      // Prepare complete onboarding object with all steps (1-5) in one atomic operation
-      // Use serverTimestamp() for completedAt to ensure server-side timestamp accuracy
-      const onboardingPayload = {
-        ...onboardingData, // All steps 1-5
-        completed: true,
-        completedAt: serverTimestamp(), // Server-side timestamp - will be converted by Firestore
-      };
+      const currentUser = firebaseAuth.currentUser;
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
 
-      // Atomic write: Save all onboarding data at once with merge: true
-      // merge: true ensures we don't overwrite other user fields (email, name, etc.)
+      // Save all onboarding data to Firestore at once with merge: true
+      // Use serverTimestamp() for completedAt to ensure server-side timestamp
       await setUserDoc(currentUser.uid, {
-        onboarding: onboardingPayload,
+        onboarding: {
+          ...onboardingData,
+          completed: true,
+          completedAt: serverTimestamp(), // Use serverTimestamp() instead of new Date()
+        },
       });
 
-      // Log success with details
-      console.log('[AuthContext] onboarding-write-success:', { 
-        uid: currentUser.uid,
-        email: currentUser.email,
-        stepsSaved: Object.keys(onboardingData),
-        completedAt: 'serverTimestamp()', // Note: actual timestamp set by server
-        timestamp: new Date().toISOString()
-      });
+      console.log('[AuthContext] onboarding-write-success:', { uid: currentUser.uid });
 
       // Update user state - skip Firestore read since we just wrote the data
       const updatedUser = await mapFirebaseUser(
         currentUser, 
         undefined, 
-        true, // skip Firestore read (we just wrote)
+        true, // skip Firestore read
         true // onboarding is now completed
       );
       
-      // Verify onboardingCompleted is set
-      if (!updatedUser.onboardingCompleted) {
-        throw new Error('Failed to set onboardingCompleted flag');
-      }
-      
-      // Update cache to avoid future Firestore reads
+      // Update cache
       cachedOnboardingCompleted.current = true;
       
-      // Save user to local storage first
+      // Save user and update state
       await storage.saveUser(updatedUser);
       
-      // Update auth state - this triggers re-render and index.tsx navigation logic
-      // Use functional update to ensure we have the latest state
-      setState(prev => {
-        const newState = {
-          ...prev,
-          user: updatedUser,
-          onboardingData: undefined, // Clear local onboarding data
-        };
-        
-        // Log state update - this will trigger index.tsx useEffect
-        console.log('[AuthContext] onboardingCompleted-state-updated:', {
-          uid: updatedUser.id,
-          email: updatedUser.email,
-          onboardingCompleted: updatedUser.onboardingCompleted,
-          timestamp: new Date().toISOString()
-        });
-        
-        return newState;
-      });
+      setState(prev => ({
+        ...prev,
+        user: updatedUser,
+        onboardingData: undefined,
+      }));
 
       isSavingOnboarding.current = false;
       return updatedUser;
-    } catch (error: any) {
+    } catch (error) {
       isSavingOnboarding.current = false;
-      
-      // Log failure with detailed error information
-      console.error('[AuthContext] onboarding-write-failed:', {
-        uid: currentUser?.uid,
-        email: currentUser?.email,
-        error: error?.message || 'Unknown error',
-        errorCode: error?.code,
-        errorStack: error?.stack,
-        steps: Object.keys(onboardingData),
-        timestamp: new Date().toISOString()
-      });
-      
+      console.error('[AuthContext] onboarding-write-failed:', error);
       throw error;
     }
   };

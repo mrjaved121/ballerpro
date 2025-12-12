@@ -37,11 +37,11 @@ export default function LoginScreen() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Add Firebase login logic here
-      console.log('Login attempt:', { email });
+      // Call login from AuthContext (handles Firebase signin)
+      await login({ email, password });
       
-      // For now, just show error - Firebase logic will be added
-      throw new Error('Login not implemented yet - add Firebase logic');
+      // Login successful - navigation will be handled by index.tsx based on auth state
+      router.replace('/');
       
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to login. Please try again.';

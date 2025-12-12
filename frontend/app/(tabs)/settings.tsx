@@ -3,13 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   StatusBar,
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { COLORS, FONTS, SPACING, SIZES } from '@/constants/theme';
@@ -27,6 +27,7 @@ import SettingsRow from '@/components/ui/SettingsRow';
 export default function SettingsScreen() {
   const { logout, user } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const handlePress = (item: string) => {
     console.log(`Pressed: ${item}`);
@@ -80,13 +81,22 @@ export default function SettingsScreen() {
     );
   };
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Settings</Text>
-      </View>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + SPACING.s }
+        ]}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Settings</Text>
+        </View>
+
         {/* Account Section */}
         <SettingsSection title="Account">
           <SettingsRow 
@@ -161,18 +171,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  header: {
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: SPACING.l,
-    paddingVertical: SPACING.l,
+    paddingBottom: SPACING.xxl,
+  },
+  header: {
+    paddingBottom: SPACING.m,
+    marginBottom: SPACING.xs,
   },
   headerTitle: {
     color: COLORS.text,
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: FONTS.bold,
-  },
-  scrollContent: {
-    paddingHorizontal: SPACING.m,
-    paddingBottom: SPACING.xxl,
   },
   userInfoContainer: {
     marginTop: SPACING.l,

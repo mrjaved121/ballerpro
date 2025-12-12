@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { SelectionCard } from '../../src/components/ui/SelectionCard';
 import { Button } from '../../src/components/Button';
-// TODO: Add Firebase onboarding service import here
+import { useOnboarding } from '../../src/contexts/OnboardingContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -21,6 +21,7 @@ type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export default function OnboardingStep2() {
   const router = useRouter();
+  const { updateStep3 } = useOnboarding();
   const [selectedLevel, setSelectedLevel] = useState<ExperienceLevel>('intermediate');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,10 +31,11 @@ export default function OnboardingStep2() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Add Firebase save step3 logic here
-      console.log('Step 3 data:', { experienceLevel: selectedLevel });
+      // Store Step 3 data locally (not saved to Firebase yet)
+      updateStep3({
+        experienceLevel: selectedLevel,
+      });
       
-      // For now, just navigate - Firebase logic will be added
       router.push('/onboarding/injuries');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';

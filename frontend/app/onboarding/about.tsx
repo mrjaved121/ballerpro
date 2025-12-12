@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ProgressBar } from '../../src/components/ui/ProgressBar';
 import { Button } from '../../src/components/Button';
-// TODO: Add Firebase onboarding service import here
+import { useOnboarding } from '../../src/contexts/OnboardingContext';
 import { useAuth } from '../../src/contexts/AuthContext';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
@@ -23,6 +23,7 @@ type Gender = 'male' | 'female' | 'other';
 export default function OnboardingStep1() {
   const router = useRouter();
   const { logout } = useAuth();
+  const { updateStep1 } = useOnboarding();
   const [selectedGender, setSelectedGender] = useState<Gender | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,10 +38,9 @@ export default function OnboardingStep1() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Add Firebase save step1 logic here
-      console.log('Step 1 data:', { gender: selectedGender });
+      // Store Step 1 data locally (not saved to Firebase yet)
+      updateStep1({ gender: selectedGender });
       
-      // For now, just navigate - Firebase logic will be added
       router.push('/onboarding/journey');
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to save. Please try again.';

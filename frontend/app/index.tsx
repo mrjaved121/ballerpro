@@ -16,39 +16,40 @@ export default function Index() {
       return;
     }
 
-    // Small delay to ensure router is fully mounted
-    const timer = setTimeout(() => {
-      const inAuthGroup = segments[0] === 'auth';
-      const inOnboardingGroup = segments[0] === 'onboarding';
-      const inTabsGroup = segments[0] === '(tabs)';
-      const inTabsIndex = segments.length === 2 && segments[0] === '(tabs)' && segments[1] === 'index';
+    // Navigate immediately - no delay needed
+    const firstSegment = segments[0];
+    const segmentsArray = segments as string[];
+    const secondSegment = segmentsArray.length > 1 ? segmentsArray[1] : undefined;
+    
+    const inAuthGroup = firstSegment === 'auth';
+    const inOnboardingGroup = firstSegment === 'onboarding';
+    const inTabsGroup = firstSegment === '(tabs)';
+    const inTabsIndex = firstSegment === '(tabs)' && secondSegment === 'index';
 
-      // Only redirect if we're on the root index page itself
-      const onRootIndex = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
+    // Only redirect if we're on the root index page itself
+    const segmentsLength = segmentsArray.length;
+    const onRootIndex = segmentsLength === 0 || firstSegment === 'index';
 
-      if (!isAuthenticated) {
-        if (!inAuthGroup && onRootIndex) {
-          router.replace('/auth/login');
-        }
-      } else if (user) {
-        if (user.onboardingCompleted === true) {
-          // Only redirect if we're not already on tabs/index
-          if ((inAuthGroup || inOnboardingGroup || onRootIndex) && !inTabsIndex) {
-            router.replace('/(tabs)/index');
-          }
-        } else {
-          if (!inOnboardingGroup && onRootIndex) {
-            router.replace('/onboarding/about');
-          }
-        }
+    if (!isAuthenticated) {
+      if (!inAuthGroup && onRootIndex) {
+        router.replace('/auth/login');
+      }
+    } else if (user) {
+      if (user.onboardingCompleted === true) {
+        router.replace('/(tabs)/index');
+        // User completed onboarding - stay at root '/'
       } else {
-        if (onRootIndex) {
-          router.replace('/auth/login');
+        // User hasn't completed onboarding - navigate to onboarding
+        // Only redirect from root index, not from auth or other screens
+        if (!inOnboardingGroup && onRootIndex) {
+          router.replace('/onboarding/about');
         }
       }
-    }, 200);
-
-    return () => clearTimeout(timer);
+    } else {
+      if (onRootIndex) {
+        router.replace('/auth/login');
+      }
+    }
   }, [isAuthenticated, user, isLoading, segments, router]);
 
   // Show loading spinner while checking auth state

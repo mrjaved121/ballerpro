@@ -1,3 +1,7 @@
+// Onboarding Step 5 - Main Goal Selection
+// BACKUP CREATED: Production Migration Preparation
+// DO NOT MODIFY - This is a backup of the current working version
+
 import React, { useState } from 'react';
 import {
   View,
@@ -50,99 +54,39 @@ export default function OnboardingStep4() {
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = async () => {
-    // Log selectedGoal value before validation check
-    console.log('[OnboardingStep5] handleContinue: Checking selectedGoal value', {
-      selectedGoal: selectedGoal,
-      selectedGoalType: typeof selectedGoal,
-      selectedGoalIsNull: selectedGoal === null,
-      selectedGoalIsUndefined: selectedGoal === undefined,
-      selectedGoalIsFalsy: !selectedGoal,
-      timestamp: new Date().toISOString()
-    });
-    
     if (!selectedGoal) {
-      console.log('[OnboardingStep5] handleContinue: selectedGoal is falsy, showing error');
       setError('Please select a goal');
       return;
     }
-    
-    console.log('[OnboardingStep5] handleContinue: selectedGoal is valid, proceeding', {
-      selectedGoal: selectedGoal
-    });
 
     try {
       setIsLoading(true);
       setError(null);
       
-      // Store Step 5 data locally (Steps 1-4 already stored in OnboardingContext)
+      // Store Step 5 data locally
       updateStep5({ goal: selectedGoal });
       
-      // Get all onboarding data from context (Steps 1-5)
+      // Get all onboarding data from context
       const allOnboardingData = getCompleteData();
       
-      // Verify we have all steps before saving
-      if (!allOnboardingData.step1 || !allOnboardingData.step2 || !allOnboardingData.step3 || 
-          !allOnboardingData.step4 || !allOnboardingData.step5) {
-        throw new Error('Missing onboarding data. Please complete all steps.');
-      }
-      
-      // Save goal to auth context (optional - for backward compatibility)
+      // Save goal to auth context
       await updateOnboardingData({ goals: [selectedGoal] });
       
-      // ATOMIC OPERATION: Save ALL onboarding data (Steps 1-5) to Firestore at once
-      // This ensures all steps are saved together - if write fails, nothing is saved
-      // Navigate immediately after successful write in the same promise chain
-      const updatedUser = await completeOnboarding(allOnboardingData);
+      // Save ALL onboarding data to Firebase at once and mark as complete
+      // Only navigate on success - wait for Firestore write to complete
+      await completeOnboarding(allOnboardingData);
       
-      // Verify state was updated successfully
-      if (!updatedUser.onboardingCompleted) {
-        throw new Error('Onboarding completion state not updated correctly');
-      }
-      
-      console.log('[OnboardingStep5] onboardingCompleted-state-updated: State updated successfully', {
-        uid: updatedUser.id,
-        onboardingCompleted: updatedUser.onboardingCompleted
-      });
-      
-      // Clear local onboarding context (data now in Firestore)
+      // Clear local onboarding context
       clearOnboarding();
       
-      // Navigate immediately in the same promise chain - no useEffect, no delays
-      // Use same pattern as login: navigate to root '/' and let index.tsx handle navigation
-      // This ensures consistent routing behavior and avoids 404 errors
-      const targetRoute = '/';
-      console.log('[OnboardingStep5] navigation-to-dashboard: Preparing to navigate', {
-        targetRoute: targetRoute,
-        routeType: typeof targetRoute,
-        routeLength: targetRoute.length,
-        currentTimestamp: new Date().toISOString(),
-        uid: updatedUser.id,
-        onboardingCompleted: updatedUser.onboardingCompleted
-      });
-      
-      // Log before navigation call
-      console.log('[OnboardingStep5] navigation-to-dashboard: Calling router.replace() with route:', {
-        route: targetRoute,
-        routeValue: JSON.stringify(targetRoute),
-        routerType: typeof router,
-        hasReplace: typeof router.replace === 'function'
-      });
-      
-      // Execute navigation
-      router.replace(targetRoute);
-      
-      // Log after navigation call
-      console.log('[OnboardingStep5] navigation-to-dashboard: router.replace() called successfully', {
-        route: targetRoute,
-        timestamp: new Date().toISOString()
-      });
+      // Navigate to home dashboard - use replace to reset navigation stack
+      // This ensures user cannot go back to onboarding
+      router.replace('/(tabs)/index');
     } catch (err: any) {
-      // Error handling - don't navigate if write failed
-      const errorMessage = err.message || 'Failed to complete onboarding. Please try again.';
+      const errorMessage = err.message || 'Failed to complete. Please try again.';
       setError(errorMessage);
       Alert.alert('Error', errorMessage);
       setIsLoading(false);
-      // Note: User stays on Step 5 screen, can retry
     }
   };
 

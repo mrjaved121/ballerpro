@@ -65,30 +65,26 @@ const secureDelete = async (key: string): Promise<void> => {
 };
 
 // Clean up any old invalid keys (with "@") to avoid runtime errors
+// Note: SecureStore doesn't allow "@" in keys, so we skip deletion attempts
+// These keys can't exist anyway, so no cleanup needed
 const cleanupLegacyKeys = async () => {
-  const legacyKeys = [
-    '@ballerpro_user',
-    '@ballerpro_token',
-    '@ballerpro_refresh_token',
-    '@ballerpro_onboarding',
-  ];
-
+  // Legacy keys with "@" prefix are invalid for SecureStore
+  // They cannot exist, so we skip cleanup attempts to avoid warnings
+  // Only clean up memory storage for web platform
   try {
-    if (await isSecureStoreAvailable()) {
-      await Promise.all(
-        legacyKeys.map(async (legacyKey) => {
-          try {
-            await SecureStore.deleteItemAsync(legacyKey);
-          } catch (error) {
-            console.warn('[Storage] Failed to remove legacy key:', legacyKey, error);
-          }
-        })
-      );
-    } else {
+    if (!(await isSecureStoreAvailable())) {
+      // For web/memory storage, clean up if keys exist
+      const legacyKeys = [
+        '@ballerpro_user',
+        '@ballerpro_token',
+        '@ballerpro_refresh_token',
+        '@ballerpro_onboarding',
+      ];
       legacyKeys.forEach((key) => delete memoryStorage[key]);
     }
+    // For SecureStore, skip cleanup - invalid keys can't exist
   } catch (error) {
-    console.warn('[Storage] Legacy cleanup error:', error);
+    // Silently ignore cleanup errors
   }
 };
 
@@ -115,16 +111,24 @@ export const storage = {
   async saveToken(token: string): Promise<void> {
     await cleanupLegacyKeys();
     await secureSet(STORAGE_KEYS.TOKEN, token);
+    console.log('[Storage] token-saved: Token stored successfully', { tokenLength: token.length });
   },
 
   async getToken(): Promise<string | null> {
     await cleanupLegacyKeys();
-    return await secureGet(STORAGE_KEYS.TOKEN);
+    const token = await secureGet(STORAGE_KEYS.TOKEN);
+    if (token) {
+      console.log('[Storage] token-retrieved: Token retrieved successfully', { tokenLength: token.length });
+    } else {
+      console.log('[Storage] token-retrieved: No token found');
+    }
+    return token;
   },
 
   async removeToken(): Promise<void> {
     await cleanupLegacyKeys();
     await secureDelete(STORAGE_KEYS.TOKEN);
+    console.log('[Storage] token-removed: Token removed successfully');
   },
 
   // Refresh Token Management
@@ -170,6 +174,7 @@ export const storage = {
       secureDelete(STORAGE_KEYS.REFRESH_TOKEN),
       secureDelete(STORAGE_KEYS.ONBOARDING),
     ]);
+    console.log('[Storage] token-removed: All tokens cleared (logout)');
   },
 };
 

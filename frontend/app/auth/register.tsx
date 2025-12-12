@@ -56,11 +56,15 @@ export default function RegisterScreen() {
       setIsLoading(true);
       setError(null);
       
-      // TODO: Add Firebase register logic here
-      console.log('Register attempt:', { email, name: email.split('@')[0] });
+      // Call register from AuthContext (handles Firebase signup + Firestore)
+      await register({ 
+        name: email.split('@')[0], 
+        email, 
+        password 
+      });
       
-      // For now, just show error - Firebase logic will be added
-      throw new Error('Register not implemented yet - add Firebase logic');
+      // Registration successful - navigate to onboarding immediately
+      router.replace('/onboarding/about');
       
     } catch (err: any) {
       console.error('[Register] Error:', err);

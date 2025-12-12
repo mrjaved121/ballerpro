@@ -22,7 +22,7 @@ interface ScreenItem {
 
 const SCREEN_CATEGORIES = {
   'Main Tabs': [
-    { name: 'Home Dashboard', route: '/(tabs)/index', icon: 'home', description: 'Main dashboard with stats & quick access', status: 'ready' },
+    { name: 'Home Dashboard', route: '/', icon: 'home', description: 'Main dashboard with stats & quick access', status: 'ready' },
     { name: 'Train', route: '/(tabs)/train', icon: 'fitness-center', description: 'Workout programs & training', status: 'ready' },
     { name: 'Track', route: '/(tabs)/track', icon: 'track-changes', description: 'Journal & mood tracking', status: 'ready' },
     { name: 'Community', route: '/(tabs)/community', icon: 'people', description: 'Social feed, challenges, leaderboard', status: 'ready' },
