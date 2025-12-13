@@ -41,7 +41,7 @@ export default function LoginScreen() {
       await login({ email, password });
       
       // Login successful - navigation will be handled by index.tsx based on auth state
-      router.replace('/');
+        router.replace('/');
       
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to login. Please try again.';

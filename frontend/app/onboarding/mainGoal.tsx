@@ -50,35 +50,23 @@ export default function OnboardingStep4() {
   const [error, setError] = useState<string | null>(null);
 
   const handleContinue = async () => {
-    // Log selectedGoal value before validation check
-    console.log('[OnboardingStep5] handleContinue: Checking selectedGoal value', {
-      selectedGoal: selectedGoal,
-      selectedGoalType: typeof selectedGoal,
-      selectedGoalIsNull: selectedGoal === null,
-      selectedGoalIsUndefined: selectedGoal === undefined,
-      selectedGoalIsFalsy: !selectedGoal,
-      timestamp: new Date().toISOString()
-    });
-    
+    // Validation first - if no goal selected, set error and return
     if (!selectedGoal) {
-      console.log('[OnboardingStep5] handleContinue: selectedGoal is falsy, showing error');
       setError('Please select a goal');
       return;
     }
-    
-    console.log('[OnboardingStep5] handleContinue: selectedGoal is valid, proceeding', {
-      selectedGoal: selectedGoal
-    });
 
     try {
       setIsLoading(true);
       setError(null);
       
-      // Store Step 5 data locally (Steps 1-4 already stored in OnboardingContext)
-      updateStep5({ goal: selectedGoal });
-      
-      // Get all onboarding data from context (Steps 1-5)
-      const allOnboardingData = getCompleteData();
+      // Get onboarding data from context (Steps 1-4) and inject Step 5 from local UI state.
+      // This avoids state desync where updateStep5() may not be reflected in getCompleteData() immediately.
+      const baseOnboardingData = getCompleteData();
+      const allOnboardingData = {
+        ...baseOnboardingData,
+        step5: { goal: selectedGoal },
+      };
       
       // Verify we have all steps before saving
       if (!allOnboardingData.step1 || !allOnboardingData.step2 || !allOnboardingData.step3 || 
@@ -86,7 +74,8 @@ export default function OnboardingStep4() {
         throw new Error('Missing onboarding data. Please complete all steps.');
       }
       
-      // Save goal to auth context (optional - for backward compatibility)
+      // Update onboarding contexts AFTER validation (single source of truth = selectedGoal)
+      updateStep5({ goal: selectedGoal });
       await updateOnboardingData({ goals: [selectedGoal] });
       
       // ATOMIC OPERATION: Save ALL onboarding data (Steps 1-5) to Firestore at once
@@ -107,35 +96,31 @@ export default function OnboardingStep4() {
       // Clear local onboarding context (data now in Firestore)
       clearOnboarding();
       
-      // Navigate immediately in the same promise chain - no useEffect, no delays
-      // Use same pattern as login: navigate to root '/' and let index.tsx handle navigation
-      // This ensures consistent routing behavior and avoids 404 errors
-      const targetRoute = '/';
-      console.log('[OnboardingStep5] navigation-to-dashboard: Preparing to navigate', {
-        targetRoute: targetRoute,
-        routeType: typeof targetRoute,
-        routeLength: targetRoute.length,
-        currentTimestamp: new Date().toISOString(),
+      // PRODUCTION-CORRECT ROUTING: Navigate to / (single entry point, same as login)
+      // index.tsx will handle redirect to /(tabs) when it mounts
+      // Use setTimeout to ensure state has propagated before navigation
+      console.log('[OnboardingStep5] onboarding-complete: Onboarding completed successfully', {
         uid: updatedUser.id,
-        onboardingCompleted: updatedUser.onboardingCompleted
-      });
-      
-      // Log before navigation call
-      console.log('[OnboardingStep5] navigation-to-dashboard: Calling router.replace() with route:', {
-        route: targetRoute,
-        routeValue: JSON.stringify(targetRoute),
-        routerType: typeof router,
-        hasReplace: typeof router.replace === 'function'
-      });
-      
-      // Execute navigation
-      router.replace(targetRoute);
-      
-      // Log after navigation call
-      console.log('[OnboardingStep5] navigation-to-dashboard: router.replace() called successfully', {
-        route: targetRoute,
+        onboardingCompleted: updatedUser.onboardingCompleted,
         timestamp: new Date().toISOString()
       });
+      
+      console.log('[OnboardingStep5] onboarding-complete-navigate-root: Navigating to / (index.tsx will handle redirect)', {
+        targetRoute: '/',
+        uid: updatedUser.id,
+        currentRoute: '/onboarding/mainGoal',
+        onboardingCompleted: updatedUser.onboardingCompleted,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Navigate to root / - index.tsx will detect state and redirect to tabs
+      // Use setTimeout to ensure state has propagated before navigation
+      setTimeout(() => {
+        router.replace('/');
+      }, 400);
+      
+      // Reset loading state
+      setIsLoading(false);
     } catch (err: any) {
       // Error handling - don't navigate if write failed
       const errorMessage = err.message || 'Failed to complete onboarding. Please try again.';
@@ -144,6 +129,7 @@ export default function OnboardingStep4() {
       setIsLoading(false);
       // Note: User stays on Step 5 screen, can retry
     }
+    // Note: No finally block needed - setIsLoading is handled in both success and error paths
   };
 
   const handleBack = () => {

@@ -63,8 +63,11 @@ export default function RegisterScreen() {
         password 
       });
       
-      // Registration successful - navigate to onboarding immediately
-      router.replace('/onboarding/about');
+      // Navigate to root - index.tsx will detect auth state and redirect appropriately
+      // New users will be redirected to onboarding
+      setTimeout(() => {
+        router.replace('/');
+      }, 300);
       
     } catch (err: any) {
       console.error('[Register] Error:', err);
